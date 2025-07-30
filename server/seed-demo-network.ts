@@ -82,96 +82,82 @@ export async function seedDemoNetworkData() {
     const demoRelationships: InsertRelationship[] = [
       // Alex's connections
       {
-        fromPersonId: 'alex-johnson',
-        toPersonId: 'sarah-chen',
+        fromId: 'alex-johnson',
+        toId: 'sarah-chen',
         type: 'colleague',
-        strength: 8
       },
       {
-        fromPersonId: 'alex-johnson',
-        toPersonId: 'mike-rodriguez',
+        fromId: 'alex-johnson',
+        toId: 'mike-rodriguez',
         type: 'university',
-        strength: 6
       },
       
       // Sarah's connections
       {
-        fromPersonId: 'sarah-chen',
-        toPersonId: 'emma-wilson',
+        fromId: 'sarah-chen',
+        toId: 'emma-wilson',
         type: 'professional',
-        strength: 9
       },
       {
-        fromPersonId: 'sarah-chen',
-        toPersonId: 'david-brown',
+        fromId: 'sarah-chen',
+        toId: 'david-brown',
         type: 'conference',
-        strength: 5
       },
       
       // Mike's connections
       {
-        fromPersonId: 'mike-rodriguez',
-        toPersonId: 'lisa-kim',
+        fromId: 'mike-rodriguez',
+        toId: 'lisa-kim',
         type: 'university',
-        strength: 7
       },
       {
-        fromPersonId: 'mike-rodriguez',
-        toPersonId: 'john-smith',
+        fromId: 'mike-rodriguez',
+        toId: 'john-smith',
         type: 'mentor',
-        strength: 9
       },
       
       // Emma's connections
       {
-        fromPersonId: 'emma-wilson',
-        toPersonId: 'john-smith',
+        fromId: 'emma-wilson',
+        toId: 'john-smith',
         type: 'investor',
-        strength: 8
       },
       
       // Create reverse relationships for undirected graph
       {
-        fromPersonId: 'sarah-chen',
-        toPersonId: 'alex-johnson',
+        fromId: 'sarah-chen',
+        toId: 'alex-johnson',
         type: 'colleague',
-        strength: 8
       },
       {
-        fromPersonId: 'mike-rodriguez',
-        toPersonId: 'alex-johnson',
+        fromId: 'mike-rodriguez',
+        toId: 'alex-johnson',
         type: 'university',
-        strength: 6
       },
       {
-        fromPersonId: 'emma-wilson',
-        toPersonId: 'sarah-chen',
+        fromId: 'emma-wilson',
+        toId: 'sarah-chen',
         type: 'professional',
-        strength: 9
       },
       {
-        fromPersonId: 'david-brown',
-        toPersonId: 'sarah-chen',
+        fromId: 'david-brown',
+        toId: 'sarah-chen',
         type: 'conference',
-        strength: 5
       },
       {
-        fromPersonId: 'lisa-kim',
-        toPersonId: 'mike-rodriguez',
+        fromId: 'lisa-kim',
+        toId: 'mike-rodriguez',
         type: 'university',
-        strength: 7
       },
       {
-        fromPersonId: 'john-smith',
-        toPersonId: 'mike-rodriguez',
+        fromId: 'john-smith',
+        toId: 'mike-rodriguez',
         type: 'mentor',
-        strength: 9
       },
       {
-        fromPersonId: 'john-smith',
-        toPersonId: 'emma-wilson',
+        fromId: 'john-smith',
+        toId: 'emma-wilson',
         type: 'investor',
-        strength: 8
       }
     ];
 
@@ -181,7 +167,7 @@ export async function seedDemoNetworkData() {
         await db.insert(relationships).values(relationship).onConflictDoNothing();
       } catch (error) {
         // Ignore duplicate relationship errors
-        console.log(`Relationship ${relationship.fromPersonId} -> ${relationship.toPersonId} already exists, skipping...`);
+        console.log(`Relationship ${relationship.fromId} -> ${relationship.toId} already exists, skipping...`);
       }
     }
 

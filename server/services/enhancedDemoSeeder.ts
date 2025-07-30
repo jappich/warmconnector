@@ -196,37 +196,35 @@ export class EnhancedDemoSeeder {
 
       try {
         const existing = await db.select().from(relationships)
-          .where(eq(relationships.fromPersonId, fromPersonId))
-          .where(eq(relationships.toPersonId, toPersonId))
+          .where(eq(relationships.fromId, fromPersonId))
+          .where(eq(relationships.toId, toPersonId))
           .limit(1);
 
         if (existing.length === 0) {
           await db.insert(relationships).values({
-            fromPersonId,
-            toPersonId,
-            relationshipType: rel.type,
-            strength: rel.strength,
-            metadata: { context: rel.context },
+            fromId: fromPersonId,
+            toId: toPersonId,
+            type: rel.type,
+            confidenceScore: rel.strength,
+            evidence: JSON.stringify({ context: rel.context }),
             createdAt: new Date(),
-            updatedAt: new Date()
           });
           relationshipsCreated++;
 
           // Create reverse relationship for bidirectional connections
           const reverseExists = await db.select().from(relationships)
-            .where(eq(relationships.fromPersonId, toPersonId))
-            .where(eq(relationships.toPersonId, fromPersonId))
+            .where(eq(relationships.fromId, toPersonId))
+            .where(eq(relationships.toId, fromPersonId))
             .limit(1);
 
           if (reverseExists.length === 0) {
             await db.insert(relationships).values({
-              fromPersonId: toPersonId,
-              toPersonId: fromPersonId,
-              relationshipType: rel.type,
-              strength: rel.strength,
-              metadata: { context: rel.context },
+              fromId: toPersonId,
+              toId: fromPersonId,
+              type: rel.type,
+              confidenceScore: rel.strength,
+              evidence: JSON.stringify({ context: rel.context }),
               createdAt: new Date(),
-              updatedAt: new Date()
             });
             relationshipsCreated++;
           }
@@ -266,17 +264,17 @@ export class EnhancedDemoSeeder {
   }> {
     // Get direct connections
     const directRels = await db.select().from(relationships)
-      .where(eq(relationships.fromPersonId, personId));
+      .where(eq(relationships.fromId, personId));
 
-    const directConnectionIds = directRels.map(rel => rel.toPersonId);
+    const directConnectionIds = directRels.map(rel => rel.toId);
     
     // Get second degree connections
     let secondDegreeIds: string[] = [];
     for (const connId of directConnectionIds) {
       const secondDegree = await db.select().from(relationships)
-        .where(eq(relationships.fromPersonId, connId));
+        .where(eq(relationships.fromId, connId));
       
-      secondDegreeIds.push(...secondDegree.map(rel => rel.toPersonId));
+      secondDegreeIds.push(...secondDegree.map(rel => rel.toId));
     }
 
     // Remove duplicates and direct connections
@@ -296,7 +294,7 @@ export class EnhancedDemoSeeder {
     }
 
     // Calculate strong connections (strength > 80)
-    const strongConnections = directRels.filter(rel => (rel.strength || 0) > 80).length;
+    const strongConnections = directRels.filter(rel => (rel.confidenceScore || 0) > 80).length;
 
     return {
       directConnections: directConnectionIds.length,

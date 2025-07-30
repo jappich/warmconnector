@@ -25,7 +25,7 @@ interface PrivacySettings {
 export class ComplianceService {
 
   // GDPR Export - Get all user data
-  async exportUserData(userId: number): Promise<UserDataExport> {
+  async exportUserData(userId: string): Promise<UserDataExport> {
     console.log(`📋 Exporting data for user ${userId}`);
 
     // Get user profile
@@ -92,7 +92,7 @@ export class ComplianceService {
   }
 
   // GDPR Deletion - Remove all user data
-  async deleteUserData(userId: number): Promise<{
+  async deleteUserData(userId: string): Promise<{
     deletedRecords: {
       profile: number;
       relationships: number;
@@ -148,7 +148,7 @@ export class ComplianceService {
   }
 
   // Update privacy settings
-  async updatePrivacySettings(userId: number, settings: Partial<PrivacySettings>): Promise<void> {
+  async updatePrivacySettings(userId: string, settings: Partial<PrivacySettings>): Promise<void> {
     console.log(`🔒 Updating privacy settings for user ${userId}`);
 
     const currentUser = await db.select()
@@ -203,7 +203,7 @@ export class ComplianceService {
   }
 
   // Check if user has opted out of data collection
-  async isDataCollectionAllowed(userId: number, dataType: keyof PrivacySettings): Promise<boolean> {
+  async isDataCollectionAllowed(userId: string, dataType: keyof PrivacySettings): Promise<boolean> {
     const user = await db.select()
       .from(users)
       .where(eq(users.id, userId))
@@ -218,7 +218,7 @@ export class ComplianceService {
   }
 
   // Anonymize user data instead of deletion (for compliance options)
-  async anonymizeUserData(userId: number): Promise<void> {
+  async anonymizeUserData(userId: string): Promise<void> {
     console.log(`🎭 Anonymizing data for user ${userId}`);
 
     const anonymizedEmail = `deleted_user_${userId}@anonymized.local`;
@@ -275,7 +275,7 @@ export class ComplianceService {
   }
 
   // Validate compliance before API data import
-  async validateDataImport(userId: number, dataType: string, source: string): Promise<{
+  async validateDataImport(userId: string, dataType: string, source: string): Promise<{
     allowed: boolean;
     reason?: string;
   }> {

@@ -479,11 +479,11 @@ export class RelationshipAnalysisService {
   private async createRelationship(fromId: string, toId: string, type: string, strength: number, metadata: any): Promise<void> {
     try {
       await db.insert(relationships).values({
-        fromPersonId: fromId,
-        toPersonId: toId,
-        relationshipType: type,
-        strength,
-        metadata: JSON.stringify(metadata)
+        fromId,
+        toId,
+        type,
+        confidenceScore: strength,
+        evidence: JSON.stringify(metadata)
       });
     } catch (error) {
       // Relationship might already exist, which is fine

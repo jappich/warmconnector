@@ -49,14 +49,14 @@ export class ConnectionStrengthService {
         .from(relationships)
         .where(
           or(
-            and(eq(relationships.fromPersonId, fromPersonId), eq(relationships.toPersonId, toPersonId)),
-            and(eq(relationships.fromPersonId, toPersonId), eq(relationships.toPersonId, fromPersonId))
+            and(eq(relationships.fromId, fromPersonId), eq(relationships.toId, toPersonId)),
+            and(eq(relationships.fromId, toPersonId), eq(relationships.toId, fromPersonId))
           )
         );
 
       // Base relationship strength
       const baseStrength = relationship 
-        ? this.RELATIONSHIP_STRENGTHS[relationship.relationshipType as keyof typeof this.RELATIONSHIP_STRENGTHS] || 30
+        ? this.RELATIONSHIP_STRENGTHS[relationship.type as keyof typeof this.RELATIONSHIP_STRENGTHS] || 30
         : 0;
 
       // Calculate bonuses
@@ -155,8 +155,8 @@ export class ConnectionStrengthService {
         .from(relationships)
         .where(
           or(
-            eq(relationships.fromPersonId, personId1),
-            eq(relationships.toPersonId, personId1)
+            eq(relationships.fromId, personId1),
+            eq(relationships.toId, personId1)
           )
         );
 
@@ -165,22 +165,22 @@ export class ConnectionStrengthService {
         .from(relationships)
         .where(
           or(
-            eq(relationships.fromPersonId, personId2),
-            eq(relationships.toPersonId, personId2)
+            eq(relationships.fromId, personId2),
+            eq(relationships.toId, personId2)
           )
         );
 
       // Extract connected person IDs
       const person1ConnectedIds = new Set<string>();
       for (const rel of person1Connections) {
-        if (rel.fromPersonId !== personId1) person1ConnectedIds.add(rel.fromPersonId);
-        if (rel.toPersonId !== personId1) person1ConnectedIds.add(rel.toPersonId);
+        if (rel.fromId !== personId1) person1ConnectedIds.add(rel.fromId);
+        if (rel.toId !== personId1) person1ConnectedIds.add(rel.toId);
       }
 
       const person2ConnectedIds = new Set<string>();
       for (const rel of person2Connections) {
-        if (rel.fromPersonId !== personId2) person2ConnectedIds.add(rel.fromPersonId);
-        if (rel.toPersonId !== personId2) person2ConnectedIds.add(rel.toPersonId);
+        if (rel.fromId !== personId2) person2ConnectedIds.add(rel.fromId);
+        if (rel.toId !== personId2) person2ConnectedIds.add(rel.toId);
       }
 
       // Count mutual connections
@@ -222,19 +222,19 @@ export class ConnectionStrengthService {
   }>> {
     try {
       // Get all relationships for this person
-      const relationships = await db.select()
+      const rels = await db.select()
         .from(relationships)
         .where(
           or(
-            eq(relationships.fromPersonId, personId),
-            eq(relationships.toPersonId, personId)
+            eq(relationships.fromId, personId),
+            eq(relationships.toId, personId)
           )
         );
 
       const strengthResults = [];
 
-      for (const rel of relationships) {
-        const otherPersonId = rel.fromPersonId === personId ? rel.toPersonId : rel.fromPersonId;
+      for (const rel of rels) {
+        const otherPersonId = rel.fromId === personId ? rel.toId : rel.fromId;
         const [otherPerson] = await db.select().from(persons).where(eq(persons.id, otherPersonId));
         
         if (otherPerson) {
@@ -244,7 +244,7 @@ export class ConnectionStrengthService {
             name: otherPerson.name,
             company: otherPerson.company,
             strength: strengthResult.strength,
-            relationshipType: rel.relationshipType
+            relationshipType: rel.type
           });
         }
       }

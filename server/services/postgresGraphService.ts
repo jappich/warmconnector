@@ -32,11 +32,11 @@ export class PostgresGraphService {
       // Simple direct connection check first
       const directConnection = await db.select()
         .from(relationships)
-        .innerJoin(persons, eq(relationships.toPersonId, persons.id))
+        .innerJoin(persons, eq(relationships.toId, persons.id))
         .where(
           and(
-            eq(relationships.fromPersonId, fromPersonId),
-            eq(relationships.toPersonId, toPersonId)
+            eq(relationships.fromId, fromPersonId),
+            eq(relationships.toId, toPersonId)
           )
         )
         .limit(1);
@@ -44,7 +44,7 @@ export class PostgresGraphService {
       if (directConnection.length > 0) {
         const fromPerson = await db.select().from(persons).where(eq(persons.id, fromPersonId)).limit(1);
         const toPerson = directConnection[0].persons;
-        const relationship = directConnection[0].relationships;
+        const relationship = directConnection[0].relationship_edges;
 
         return {
           path: [
@@ -60,11 +60,11 @@ export class PostgresGraphService {
               company: toPerson.company || undefined,
               title: toPerson.title || undefined,
               relationshipType: relationship.type,
-              strength: relationship.strength || undefined
+              strength: relationship.confidenceScore || undefined
             }
           ],
           totalHops: 1,
-          totalStrength: relationship.strength || 1,
+          totalStrength: relationship.confidenceScore || 1,
           pathDescription: `Direct ${relationship.type} connection`
         };
       }
@@ -77,18 +77,18 @@ export class PostgresGraphService {
         fromPerson: persons
       })
         .from(relationships)
-        .innerJoin(persons, eq(relationships.toPersonId, persons.id))
-        .where(eq(relationships.fromPersonId, fromPersonId))
+        .innerJoin(persons, eq(relationships.toId, persons.id))
+        .where(eq(relationships.fromId, fromPersonId))
         .limit(10);
 
       for (const middleConnection of twoHopConnections) {
         const finalConnection = await db.select()
           .from(relationships)
-          .innerJoin(persons, eq(relationships.toPersonId, persons.id))
+          .innerJoin(persons, eq(relationships.toId, persons.id))
           .where(
             and(
-              eq(relationships.fromPersonId, middleConnection.middlePerson.id),
-              eq(relationships.toPersonId, toPersonId)
+              eq(relationships.fromId, middleConnection.middlePerson.id),
+              eq(relationships.toId, toPersonId)
             )
           )
           .limit(1);
@@ -96,7 +96,7 @@ export class PostgresGraphService {
         if (finalConnection.length > 0) {
           const fromPerson = await db.select().from(persons).where(eq(persons.id, fromPersonId)).limit(1);
           const finalPerson = finalConnection[0].persons;
-          const finalRel = finalConnection[0].relationships;
+          const finalRel = finalConnection[0].relationship_edges;
 
           return {
             path: [
@@ -112,7 +112,7 @@ export class PostgresGraphService {
                 company: middleConnection.middlePerson.company,
                 title: middleConnection.middlePerson.title,
                 relationshipType: middleConnection.firstRel.type,
-                strength: middleConnection.firstRel.strength
+                strength: middleConnection.firstRel.confidenceScore
               },
               {
                 id: finalPerson.id,
@@ -120,11 +120,11 @@ export class PostgresGraphService {
                 company: finalPerson.company,
                 title: finalPerson.title,
                 relationshipType: finalRel.type,
-                strength: finalRel.strength
+                strength: finalRel.confidenceScore
               }
             ],
             totalHops: 2,
-            totalStrength: (middleConnection.firstRel.strength || 1) + (finalRel.strength || 1),
+            totalStrength: (middleConnection.firstRel.confidenceScore || 1) + (finalRel.confidenceScore || 1),
             pathDescription: `Path via ${middleConnection.middlePerson.name}`
           };
         }
@@ -225,8 +225,8 @@ export class PostgresGraphService {
         .from(relationships)
         .where(
           or(
-            eq(relationships.fromPersonId, personId),
-            eq(relationships.toPersonId, personId)
+            eq(relationships.fromId, personId),
+            eq(relationships.toId, personId)
           )
         );
 
@@ -235,17 +235,17 @@ export class PostgresGraphService {
         .from(relationships)
         .innerJoin(persons, 
           or(
-            and(eq(relationships.fromPersonId, personId), eq(relationships.toPersonId, persons.id)),
-            and(eq(relationships.toPersonId, personId), eq(relationships.fromPersonId, persons.id))
+            and(eq(relationships.fromId, personId), eq(relationships.toId, persons.id)),
+            and(eq(relationships.toId, personId), eq(relationships.fromId, persons.id))
           )
         )
         .where(
           or(
-            eq(relationships.fromPersonId, personId),
-            eq(relationships.toPersonId, personId)
+            eq(relationships.fromId, personId),
+            eq(relationships.toId, personId)
           )
         )
-        .orderBy(relationships.strength)
+        .orderBy(relationships.confidenceScore)
         .limit(1);
 
       // Get connected companies
@@ -255,14 +255,14 @@ export class PostgresGraphService {
         .from(relationships)
         .innerJoin(persons, 
           or(
-            and(eq(relationships.fromPersonId, personId), eq(relationships.toPersonId, persons.id)),
-            and(eq(relationships.toPersonId, personId), eq(relationships.fromPersonId, persons.id))
+            and(eq(relationships.fromId, personId), eq(relationships.toId, persons.id)),
+            and(eq(relationships.toId, personId), eq(relationships.fromId, persons.id))
           )
         )
         .where(
           or(
-            eq(relationships.fromPersonId, personId),
-            eq(relationships.toPersonId, personId)
+            eq(relationships.fromId, personId),
+            eq(relationships.toId, personId)
           )
         );
 
@@ -297,18 +297,18 @@ export class PostgresGraphService {
   ): Promise<boolean> {
     try {
       await db.insert(relationships).values({
-        fromPersonId,
-        toPersonId,
+        fromId: fromPersonId,
+        toId: toPersonId,
         type,
-        strength
+        confidenceScore: strength
       });
       
       // Also add reverse relationship for undirected graph
       await db.insert(relationships).values({
-        fromPersonId: toPersonId,
-        toPersonId: fromPersonId,
+        fromId: toPersonId,
+        toId: fromPersonId,
         type,
-        strength
+        confidenceScore: strength
       });
       
       return true;

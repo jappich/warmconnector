@@ -221,10 +221,10 @@ export class Neo4jService {
     
     for (const rel of relationships) {
       await this.createRelationship(
-        rel.fromPersonId,
-        rel.toPersonId,
-        rel.relationshipType || 'CONNECTED',
-        rel.strength || 50
+        rel.fromId,
+        rel.toId,
+        rel.type || 'CONNECTED',
+        rel.confidenceScore || 50
       );
     }
     

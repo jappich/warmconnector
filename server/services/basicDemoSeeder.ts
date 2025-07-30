@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { persons, relationships, users } from '../../shared/schema';
+import { persons, relationshipEdges, users } from '../../shared/schema';
 
 export class BasicDemoSeeder {
   async seedBasicNetworkingData(): Promise<{
@@ -127,13 +127,12 @@ export class BasicDemoSeeder {
 
     // Insert relationships
     for (const relationship of relationships_data) {
-      await db.insert(relationships).values({
-        fromPersonId: relationship.fromPersonId,
-        toPersonId: relationship.toPersonId,
+      await db.insert(relationshipEdges).values({
+        fromId: relationship.fromPersonId,
+        toId: relationship.toPersonId,
         type: relationship.type,
-        strength: relationship.strength,
+        confidenceScore: relationship.strength,
         createdAt: new Date(),
-        updatedAt: new Date()
       }).onConflictDoNothing();
     }
 

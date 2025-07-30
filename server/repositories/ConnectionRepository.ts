@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { persons, relationships, cachedLookups } from '../../shared/schema';
+import { persons, relationshipEdges, cachedLookups } from '../../shared/schema';
 import { eq, and, or, like, sql } from 'drizzle-orm';
 
 export interface ConnectionEvidence {
@@ -135,22 +135,22 @@ export class ConnectionRepository {
   async findExistingRelationships(userAId: string, userBId: string): Promise<ConnectionEvidence[]> {
     const existingRelationships = await db
       .select()
-      .from(relationships)
+      .from(relationshipEdges)
       .where(
         or(
-          and(eq(relationships.fromPersonId, userAId), eq(relationships.toPersonId, userBId)),
-          and(eq(relationships.fromPersonId, userBId), eq(relationships.toPersonId, userAId))
+          and(eq(relationshipEdges.fromId, userAId), eq(relationshipEdges.toId, userBId)),
+          and(eq(relationshipEdges.fromId, userBId), eq(relationshipEdges.toId, userAId))
         )
       );
 
     return existingRelationships.map((rel: any) => ({
       source: 'Existing Database',
-      evidence: `${rel.relationshipType} connection`,
-      score: (rel.strength || 70) / 100,
+      evidence: `${rel.type} connection`,
+      score: (rel.confidenceScore || 70) / 100,
       metadata: { 
-        relationshipType: rel.relationshipType,
-        strength: rel.strength,
-        source: rel.metadata?.source || 'manual'
+        relationshipType: rel.type,
+        strength: rel.confidenceScore,
+        source: rel.source || 'manual'
       }
     }));
   }

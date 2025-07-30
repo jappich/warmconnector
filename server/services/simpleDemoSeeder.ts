@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { persons, relationships, users } from '../../shared/schema';
+import { persons, relationshipEdges as relationships, users } from '../../shared/schema';
 
 export class SimpleDemoSeeder {
   async seedRealisticNetworkingData(): Promise<{
@@ -187,22 +187,22 @@ export class SimpleDemoSeeder {
       // Alex (demo_user_1) connections
       // Coworker at previous company (Stanford connection)
       {
-        fromPersonId: 'demo_user_1',
-        toPersonId: 'person_3', // Michael at Google, Stanford + Greek life
-        relationshipType: 'education',
-        strength: 80,
-        metadata: JSON.stringify({
+        fromId: 'demo_user_1',
+        toId: 'person_3', // Michael at Google, Stanford + Greek life
+        type: 'education',
+        confidenceScore: 80,
+        evidence: JSON.stringify({
           university: 'Stanford University',
           graduationYear: 2018,
           sameProgram: true
         })
       },
       {
-        fromPersonId: 'demo_user_1',
-        toPersonId: 'person_3',
-        relationshipType: 'greek_life',
-        strength: 85,
-        metadata: JSON.stringify({
+        fromId: 'demo_user_1',
+        toId: 'person_3',
+        type: 'greek_life',
+        confidenceScore: 85,
+        evidence: JSON.stringify({
           organization: 'Beta Theta Pi',
           pledge_class: 2016,
           active_together: true
@@ -210,11 +210,11 @@ export class SimpleDemoSeeder {
       },
       // Greek life connection
       {
-        fromPersonId: 'demo_user_1',
-        toPersonId: 'person_7', // Ryan at Salesforce
-        relationshipType: 'greek_life',
-        strength: 75,
-        metadata: JSON.stringify({
+        fromId: 'demo_user_1',
+        toId: 'person_7', // Ryan at Salesforce
+        type: 'greek_life',
+        confidenceScore: 75,
+        evidence: JSON.stringify({
           organization: 'Beta Theta Pi',
           pledge_class: 2015,
           active_together: false
@@ -222,22 +222,22 @@ export class SimpleDemoSeeder {
       },
       // Hometown connection
       {
-        fromPersonId: 'demo_user_1',
-        toPersonId: 'person_5', // David at Microsoft
-        relationshipType: 'hometown',
-        strength: 60,
-        metadata: JSON.stringify({
+        fromId: 'demo_user_1',
+        toId: 'person_5', // David at Microsoft
+        type: 'hometown',
+        confidenceScore: 60,
+        evidence: JSON.stringify({
           hometown: 'Austin, TX',
           connection_type: 'family_friend',
           years_known: 15
         })
       },
       {
-        fromPersonId: 'demo_user_1',
-        toPersonId: 'person_8', // Amanda at Apple
-        relationshipType: 'hometown',
-        strength: 65,
-        metadata: JSON.stringify({
+        fromId: 'demo_user_1',
+        toId: 'person_8', // Amanda at Apple
+        type: 'hometown',
+        confidenceScore: 65,
+        evidence: JSON.stringify({
           hometown: 'Austin, TX',
           connection_type: 'high_school',
           years_known: 12
@@ -245,11 +245,11 @@ export class SimpleDemoSeeder {
       },
       // Stanford connection
       {
-        fromPersonId: 'demo_user_1',
-        toPersonId: 'person_6', // Jessica at Meta
-        relationshipType: 'education',
-        strength: 70,
-        metadata: JSON.stringify({
+        fromId: 'demo_user_1',
+        toId: 'person_6', // Jessica at Meta
+        type: 'education',
+        confidenceScore: 70,
+        evidence: JSON.stringify({
           university: 'Stanford University',
           graduationYear: 2018,
           sameProgram: false
@@ -257,11 +257,11 @@ export class SimpleDemoSeeder {
       },
       // Second-degree connections (Michael's connections)
       {
-        fromPersonId: 'person_3', // Michael at Google
-        toPersonId: 'person_2', // Sarah at Google
-        relationshipType: 'coworker',
-        strength: 90,
-        metadata: JSON.stringify({
+        fromId: 'person_3', // Michael at Google
+        toId: 'person_2', // Sarah at Google
+        type: 'coworker',
+        confidenceScore: 90,
+        evidence: JSON.stringify({
           company: 'Google',
           connectionDate: '2020-01-15',
           workedTogether: true
@@ -269,11 +269,11 @@ export class SimpleDemoSeeder {
       },
       // David's connection to Emily (both at Microsoft)
       {
-        fromPersonId: 'person_5', // David at Microsoft
-        toPersonId: 'person_4', // Emily at Microsoft
-        relationshipType: 'coworker',
-        strength: 85,
-        metadata: JSON.stringify({
+        fromId: 'person_5', // David at Microsoft
+        toId: 'person_4', // Emily at Microsoft
+        type: 'coworker',
+        confidenceScore: 85,
+        evidence: JSON.stringify({
           company: 'Microsoft',
           connectionDate: '2019-03-10',
           workedTogether: true
@@ -281,11 +281,11 @@ export class SimpleDemoSeeder {
       },
       // MIT alumni connection
       {
-        fromPersonId: 'person_2', // Sarah at Google
-        toPersonId: 'person_5', // David at Microsoft
-        relationshipType: 'education',
-        strength: 65,
-        metadata: JSON.stringify({
+        fromId: 'person_2', // Sarah at Google
+        toId: 'person_5', // David at Microsoft
+        type: 'education',
+        confidenceScore: 65,
+        evidence: JSON.stringify({
           university: 'MIT',
           graduationYear: 2017,
           sameProgram: true
@@ -295,15 +295,7 @@ export class SimpleDemoSeeder {
 
     // Insert relationships
     for (const relationship of relationships_data) {
-      await db.insert(relationships).values({
-        fromPersonId: relationship.fromPersonId,
-        toPersonId: relationship.toPersonId,
-        relationshipType: relationship.relationshipType,
-        strength: relationship.strength,
-        metadata: relationship.metadata,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }).onConflictDoNothing();
+      await db.insert(relationships).values(relationship).onConflictDoNothing();
     }
 
     // Create demo user record

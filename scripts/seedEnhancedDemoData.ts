@@ -1,5 +1,5 @@
 import { db } from '../server/db';
-import { persons, relationships, users } from '@shared/schema';
+import { persons, relationshipEdges as relationships, users } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 
 // Realistic data for seeding
@@ -142,10 +142,10 @@ export async function seedEnhancedDemoData() {
       for (let i = 0; i < colleagues.length; i++) {
         for (let j = i + 1; j < colleagues.length; j++) {
           relationshipsData.push({
-            fromPersonId: colleagues[i].id,
-            toPersonId: colleagues[j].id,
+            fromId: colleagues[i].id,
+            toId: colleagues[j].id,
             type: 'COWORKER',
-            strength: Math.random() * 0.5 + 0.3, // 0.3-0.8
+            confidenceScore: Math.random() * 0.5 + 0.3, // 0.3-0.8
             metadata: JSON.stringify({ company }),
             createdAt: new Date(),
             updatedAt: new Date()
@@ -170,10 +170,10 @@ export async function seedEnhancedDemoData() {
       for (let i = 0; i < alumni.length; i++) {
         for (let j = i + 1; j < alumni.length; j++) {
           relationshipsData.push({
-            fromPersonId: alumni[i].id,
-            toPersonId: alumni[j].id,
+            fromId: alumni[i].id,
+            toId: alumni[j].id,
             type: 'EDUCATION',
-            strength: Math.random() * 0.4 + 0.2, // 0.2-0.6
+            confidenceScore: Math.random() * 0.4 + 0.2, // 0.2-0.6
             metadata: JSON.stringify({ school }),
             createdAt: new Date(),
             updatedAt: new Date()
@@ -198,10 +198,10 @@ export async function seedEnhancedDemoData() {
       for (let i = 0; i < members.length; i++) {
         for (let j = i + 1; j < members.length; j++) {
           relationshipsData.push({
-            fromPersonId: members[i].id,
-            toPersonId: members[j].id,
+            fromId: members[i].id,
+            toId: members[j].id,
             type: 'GREEK_LIFE',
-            strength: Math.random() * 0.6 + 0.4, // 0.4-1.0
+            confidenceScore: Math.random() * 0.6 + 0.4, // 0.4-1.0
             metadata: JSON.stringify({ 
               org: members[i].greekLife.org, 
               chapter: members[i].greekLife.chapter 
@@ -230,10 +230,10 @@ export async function seedEnhancedDemoData() {
       for (let i = 0; i < residents.length; i++) {
         for (let j = i + 1; j < residents.length; j++) {
           relationshipsData.push({
-            fromPersonId: residents[i].id,
-            toPersonId: residents[j].id,
+            fromId: residents[i].id,
+            toId: residents[j].id,
             type: 'HOMETOWN',
-            strength: Math.random() * 0.3 + 0.1, // 0.1-0.4
+            confidenceScore: Math.random() * 0.3 + 0.1, // 0.1-0.4
             metadata: JSON.stringify(residents[i].hometowns[0]),
             createdAt: new Date(),
             updatedAt: new Date()
@@ -249,10 +249,10 @@ export async function seedEnhancedDemoData() {
       const person2 = getRandomElement(createdPersons.filter(p => p.id !== person1.id));
       
       relationshipsData.push({
-        fromPersonId: person1.id,
-        toPersonId: person2.id,
+        fromId: person1.id,
+        toId: person2.id,
         type: 'FAMILY',
-        strength: Math.random() * 0.5 + 0.5, // 0.5-1.0
+        confidenceScore: Math.random() * 0.5 + 0.5, // 0.5-1.0
         metadata: JSON.stringify({ 
           relation: getRandomElement(['sibling', 'cousin', 'spouse']) 
         }),
@@ -268,10 +268,10 @@ export async function seedEnhancedDemoData() {
       const person2 = getRandomElement(createdPersons.filter(p => p.id !== person1.id));
       
       relationshipsData.push({
-        fromPersonId: person1.id,
-        toPersonId: person2.id,
+        fromId: person1.id,
+        toId: person2.id,
         type: 'SOCIAL',
-        strength: Math.random() * 0.4 + 0.1, // 0.1-0.5
+        confidenceScore: Math.random() * 0.4 + 0.1, // 0.1-0.5
         metadata: JSON.stringify({ 
           platform: getRandomElement(['LinkedIn', 'Twitter', 'Facebook']) 
         }),

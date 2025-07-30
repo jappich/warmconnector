@@ -108,8 +108,8 @@ export class EnhancedConnectionEngine {
       relationship: relationships
     })
     .from(relationships)
-    .innerJoin(persons, eq(relationships.toPersonId, persons.id))
-    .where(eq(relationships.fromPersonId, userId))
+    .innerJoin(persons, eq(relationships.toId, persons.id))
+    .where(eq(relationships.fromId, userId))
     .limit(limit);
 
     for (const connection of directConnections) {
@@ -179,11 +179,11 @@ export class EnhancedConnectionEngine {
 
     // Get user's direct connections
     const userConnections = await db.select({
-      personId: relationships.toPersonId,
-      strength: relationships.strength
+      personId: relationships.toId,
+      strength: relationships.confidenceScore
     })
     .from(relationships)
-    .where(eq(relationships.fromPersonId, userId));
+    .where(eq(relationships.fromId, userId));
 
     const directConnectionIds = userConnections.map(conn => conn.personId);
     if (directConnectionIds.length === 0) return { candidates, searchCriteria };
@@ -192,15 +192,15 @@ export class EnhancedConnectionEngine {
     const mutualConnections = await db.select({
       person: persons,
       relationship: relationships,
-      mutualContactId: relationships.fromPersonId
+      mutualContactId: relationships.fromId
     })
     .from(relationships)
-    .innerJoin(persons, eq(relationships.toPersonId, persons.id))
+    .innerJoin(persons, eq(relationships.toId, persons.id))
     .where(
       and(
-        sql`${relationships.fromPersonId} IN (${directConnectionIds.join(',')})`,
-        ne(relationships.toPersonId, userId),
-        notInArray(relationships.toPersonId, directConnectionIds)
+        sql`${relationships.fromId} IN (${directConnectionIds.join(',')})`,
+        ne(relationships.toId, userId),
+        notInArray(relationships.toId, directConnectionIds)
       )
     )
     .limit(limit);
@@ -239,10 +239,10 @@ export class EnhancedConnectionEngine {
 
     // Get existing connection IDs to exclude
     const existingConnections = await db.select({
-      personId: relationships.toPersonId
+      personId: relationships.toId
     })
     .from(relationships)
-    .where(eq(relationships.fromPersonId, userId));
+    .where(eq(relationships.fromId, userId));
 
     const excludeIds = [userId, ...existingConnections.map(conn => conn.personId)];
 
@@ -279,7 +279,7 @@ export class EnhancedConnectionEngine {
    * Calculate connection score for direct relationships
    */
   private calculateDirectConnectionScore(relationship: Relationship): number {
-    const baseScore = (relationship.strength || 5) * 10; // Convert 1-10 to percentage
+    const baseScore = (relationship.confidenceScore || 5) * 10; // Convert 1-10 to percentage
     
     // Boost score based on relationship type
     const typeBoost = {
@@ -314,7 +314,7 @@ export class EnhancedConnectionEngine {
    * Calculate connection score for mutual connections
    */
   private calculateMutualConnectionScore(relationship: Relationship): number {
-    const strength = relationship.strength || 5;
+    const strength = relationship.confidenceScore || 5;
     return Math.min(strength * 7, 75); // Scale to max 75 for second-degree
   }
 
@@ -412,11 +412,11 @@ export class EnhancedConnectionEngine {
 
     // Get user's direct connections
     const userConnections = await db.select({
-      personId: relationships.toPersonId,
-      strength: relationships.strength
+      personId: relationships.toId,
+      strength: relationships.confidenceScore
     })
     .from(relationships)
-    .where(eq(relationships.fromPersonId, userId));
+    .where(eq(relationships.fromId, userId));
 
     const directConnectionIds = userConnections.map(conn => conn.personId);
     if (directConnectionIds.length === 0) return { candidates, searchCriteria };
@@ -428,12 +428,12 @@ export class EnhancedConnectionEngine {
         relationship: relationships
       })
       .from(relationships)
-      .innerJoin(persons, eq(relationships.toPersonId, persons.id))
+      .innerJoin(persons, eq(relationships.toId, persons.id))
       .where(
         and(
-          eq(relationships.fromPersonId, directConn.personId),
-          ne(relationships.toPersonId, userId),
-          notInArray(relationships.toPersonId, directConnectionIds)
+          eq(relationships.fromId, directConn.personId),
+          ne(relationships.toId, userId),
+          notInArray(relationships.toId, directConnectionIds)
         )
       )
       .limit(Math.max(1, Math.floor(limit / userConnections.length)));
@@ -445,7 +445,7 @@ export class EnhancedConnectionEngine {
 
       for (const connection of mutualConnections) {
         if (!candidates.some(c => c.person.id === connection.person.id)) {
-          const avgStrength = ((directConn.strength || 5) + (connection.relationship.strength || 5)) / 2;
+          const avgStrength = ((directConn.strength || 5) + (connection.relationship.confidenceScore || 5)) / 2;
           
           candidates.push({
             person: connection.person,

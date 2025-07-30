@@ -101,15 +101,15 @@ export class EnhancedGraphService {
         .from(relationships)
         .where(
           or(
-            eq(relationships.fromPersonId, currentPersonId),
-            eq(relationships.toPersonId, currentPersonId)
+            eq(relationships.fromId, currentPersonId),
+            eq(relationships.toId, currentPersonId)
           )
         );
 
       for (const connection of connections) {
-        const nextPersonId = connection.fromPersonId === currentPersonId 
-          ? connection.toPersonId 
-          : connection.fromPersonId;
+        const nextPersonId = connection.fromId === currentPersonId
+          ? connection.toId
+          : connection.fromId;
 
         if (visited.has(nextPersonId)) continue;
 
@@ -156,14 +156,14 @@ export class EnhancedGraphService {
             .from(relationships)
             .where(
               or(
-                eq(relationships.fromPersonId, prevPersonId) && eq(relationships.toPersonId, personId),
-                eq(relationships.fromPersonId, personId) && eq(relationships.toPersonId, prevPersonId)
+                eq(relationships.fromId, prevPersonId) && eq(relationships.toId, personId),
+                eq(relationships.fromId, personId) && eq(relationships.toId, prevPersonId)
               )
             );
           
           if (relationship) {
-            node.relationshipType = relationship.relationshipType;
-            node.relationshipData = relationship.metadata;
+            node.relationshipType = relationship.type;
+            node.relationshipData = relationship.evidence;
           }
         }
 
@@ -199,15 +199,15 @@ export class EnhancedGraphService {
         .from(relationships)
         .where(
           or(
-            eq(relationships.fromPersonId, personId),
-            eq(relationships.toPersonId, personId)
+            eq(relationships.fromId, personId),
+            eq(relationships.toId, personId)
           )
         );
 
       // Count by relationship type
       const connectionsByType: Record<string, number> = {};
       for (const rel of allRelationships) {
-        connectionsByType[rel.relationshipType] = (connectionsByType[rel.relationshipType] || 0) + 1;
+        connectionsByType[rel.type] = (connectionsByType[rel.type] || 0) + 1;
       }
 
       // Get strongest connections
@@ -255,8 +255,8 @@ export class EnhancedGraphService {
         .from(relationships)
         .where(
           or(
-            eq(relationships.fromPersonId, personId1),
-            eq(relationships.toPersonId, personId1)
+            eq(relationships.fromId, personId1),
+            eq(relationships.toId, personId1)
           )
         );
 
@@ -264,21 +264,21 @@ export class EnhancedGraphService {
         .from(relationships)
         .where(
           or(
-            eq(relationships.fromPersonId, personId2),
-            eq(relationships.toPersonId, personId2)
+            eq(relationships.fromId, personId2),
+            eq(relationships.toId, personId2)
           )
         );
 
       // Find mutual connection IDs
       const person1ConnectedIds = new Set<string>();
       for (const rel of person1Connections) {
-        const otherId = rel.fromPersonId === personId1 ? rel.toPersonId : rel.fromPersonId;
+        const otherId = rel.fromId === personId1 ? rel.toId : rel.fromId;
         person1ConnectedIds.add(otherId);
       }
 
       const mutualIds: string[] = [];
       for (const rel of person2Connections) {
-        const otherId = rel.fromPersonId === personId2 ? rel.toPersonId : rel.fromPersonId;
+        const otherId = rel.fromId === personId2 ? rel.toId : rel.fromId;
         if (person1ConnectedIds.has(otherId)) {
           mutualIds.push(otherId);
         }

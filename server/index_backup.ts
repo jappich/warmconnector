@@ -201,7 +201,7 @@ const shouldUseDevelopmentMode = app.get('env') === 'development' || !process.en
 if (shouldUseDevelopmentMode) {
   console.log('🔧 Setting up Vite development server...');
   import('./vite').then((viteServer) => {
-    app.use(viteServer.default);
+    // app.use(viteServer.default);
   });
 } else {
   console.log('📦 Serving static production build...');
@@ -216,7 +216,7 @@ if (shouldUseDevelopmentMode) {
 }
 
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`[express] serving on port ${PORT}`);
   
   // Schedule hourly graph rebuild

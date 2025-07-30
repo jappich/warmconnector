@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { persons, relationships, users, introRequests } from '../../shared/schema';
+import { persons, relationships, users } from '../../shared/schema';
 import { faker } from '@faker-js/faker';
 
 interface DemoPersonProfile {

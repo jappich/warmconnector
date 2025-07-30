@@ -83,15 +83,15 @@ export class AdvancedConnectionFinder {
     
     // Build adjacency map and edge strengths
     for (const rel of allRelationships) {
-      if (rel.fromPersonId && rel.toPersonId) {
+      if (rel.fromId && rel.toId) {
         // Add bidirectional edges
-        this.adjacencyMap.get(rel.fromPersonId)?.add(rel.toPersonId);
-        this.adjacencyMap.get(rel.toPersonId)?.add(rel.fromPersonId);
+        this.adjacencyMap.get(rel.fromId)?.add(rel.toId);
+        this.adjacencyMap.get(rel.toId)?.add(rel.fromId);
         
         // Store edge strength (bidirectional)
-        const edgeKey1 = `${rel.fromPersonId}-${rel.toPersonId}`;
-        const edgeKey2 = `${rel.toPersonId}-${rel.fromPersonId}`;
-        const strength = rel.strength || 50;
+        const edgeKey1 = `${rel.fromId}-${rel.toId}`;
+        const edgeKey2 = `${rel.toId}-${rel.fromId}`;
+        const strength = rel.confidenceScore || 50;
         
         this.edgeStrength.set(edgeKey1, strength);
         this.edgeStrength.set(edgeKey2, strength);

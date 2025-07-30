@@ -94,14 +94,14 @@ export class CleanConnectionEngine {
       relationship: relationships
     })
     .from(relationships)
-    .innerJoin(persons, eq(relationships.toPersonId, persons.id))
-    .where(eq(relationships.fromPersonId, userId));
+    .innerJoin(persons, eq(relationships.toId, persons.id))
+    .where(eq(relationships.fromId, userId));
 
     for (const connection of directConnections) {
       const { person, relationship } = connection;
       candidates.push({
         person,
-        connectionScore: (relationship.strength || 5) * 10,
+        connectionScore: (relationship.confidenceScore || 5) * 10,
         matchReasons: [`Direct ${relationship.type} connection`],
         connectionType: 'direct',
         degreeOfSeparation: 1,
@@ -145,10 +145,10 @@ export class CleanConnectionEngine {
 
     // Get user's direct connections
     const userConnections = await db.select({
-      personId: relationships.toPersonId
+      personId: relationships.toId
     })
     .from(relationships)
-    .where(eq(relationships.fromPersonId, userId));
+    .where(eq(relationships.fromId, userId));
 
     if (userConnections.length === 0) return candidates;
 
@@ -161,12 +161,12 @@ export class CleanConnectionEngine {
         relationship: relationships
       })
       .from(relationships)
-      .innerJoin(persons, eq(relationships.toPersonId, persons.id))
+      .innerJoin(persons, eq(relationships.toId, persons.id))
       .where(
         and(
-          eq(relationships.fromPersonId, directConn.personId),
-          ne(relationships.toPersonId, userId),
-          sql`${relationships.toPersonId} NOT IN (${directConnectionIds.map(id => `'${id}'`).join(',')})`
+          eq(relationships.fromId, directConn.personId),
+          ne(relationships.toId, userId),
+          sql`${relationships.toId} NOT IN (${directConnectionIds.map(id => `'${id}'`).join(',')})`
         )
       )
       .limit(3);
@@ -201,10 +201,10 @@ export class CleanConnectionEngine {
 
     // Get existing connection IDs to exclude
     const existingConnections = await db.select({
-      personId: relationships.toPersonId
+      personId: relationships.toId
     })
     .from(relationships)
-    .where(eq(relationships.fromPersonId, userId));
+    .where(eq(relationships.fromId, userId));
 
     const excludeIds = [userId, ...existingConnections.map(conn => conn.personId)];
 

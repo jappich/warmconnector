@@ -71,14 +71,14 @@ export class SimpleConnectionFinder {
   private async findDirectConnection(fromPersonId: string, toPersonId: string): Promise<ConnectionPath | null> {
     const relationship = await db
       .select({
-        type: relationships.relationshipType,
-        strength: relationships.strength
+        type: relationships.type,
+        strength: relationships.confidenceScore
       })
       .from(relationships)
       .where(
         and(
-          eq(relationships.fromPersonId, fromPersonId),
-          eq(relationships.toPersonId, toPersonId)
+          eq(relationships.fromId, fromPersonId),
+          eq(relationships.toId, toPersonId)
         )
       )
       .limit(1);
@@ -122,12 +122,12 @@ export class SimpleConnectionFinder {
     // Find all people connected to fromPersonId
     const fromConnections = await db
       .select({
-        personId: relationships.toPersonId,
-        relationshipType: relationships.relationshipType,
-        strength: relationships.strength
+        personId: relationships.toId,
+        relationshipType: relationships.type,
+        strength: relationships.confidenceScore
       })
       .from(relationships)
-      .where(eq(relationships.fromPersonId, fromPersonId));
+      .where(eq(relationships.fromId, fromPersonId));
     
     const paths: ConnectionPath[] = [];
     
@@ -135,14 +135,14 @@ export class SimpleConnectionFinder {
       // Check if this intermediate person is connected to toPersonId
       const toConnection = await db
         .select({
-          relationshipType: relationships.relationshipType,
-          strength: relationships.strength
+          relationshipType: relationships.type,
+          strength: relationships.confidenceScore
         })
         .from(relationships)
         .where(
           and(
-            eq(relationships.fromPersonId, fromConn.personId),
-            eq(relationships.toPersonId, toPersonId)
+            eq(relationships.fromId, fromConn.personId),
+            eq(relationships.toId, toPersonId)
           )
         )
         .limit(1);

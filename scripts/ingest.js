@@ -184,7 +184,7 @@ class DataIngestionService {
   }
 
   // Create relationship edges in Neo4j
-  async createRelationship(fromPersonId, toPersonId, relationType, metadata = {}) {
+  async createRelationship(fromId, toId, relationType, metadata = {}) {
     const session = this.neo4jDriver.session();
     try {
       await session.run(
@@ -197,8 +197,8 @@ class DataIngestionService {
             r.createdAt = datetime()
         `,
         {
-          fromId: fromPersonId,
-          toId: toPersonId,
+          fromId: fromId,
+          toId: toId,
           since: metadata.since,
           metadata: JSON.stringify(metadata)
         }

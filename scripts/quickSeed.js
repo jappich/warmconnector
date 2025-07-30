@@ -93,14 +93,14 @@ async function quickSeed() {
   
   // Create some relationships for demo
   const demoRelationships = [
-    { fromPersonId: 'person-1', toPersonId: 'person-2', relationshipType: 'colleague', strength: 8 },
-    { fromPersonId: 'person-2', toPersonId: 'person-3', relationshipType: 'former_colleague', strength: 7 },
-    { fromPersonId: 'person-3', toPersonId: 'person-4', relationshipType: 'university', strength: 6 },
-    { fromPersonId: 'person-1', toPersonId: 'person-5', relationshipType: 'professional', strength: 5 },
-    { fromPersonId: 'person-4', toPersonId: 'person-6', relationshipType: 'colleague', strength: 9 },
-    { fromPersonId: 'person-5', toPersonId: 'person-7', relationshipType: 'mentor', strength: 8 },
-    { fromPersonId: 'person-6', toPersonId: 'person-8', relationshipType: 'professional', strength: 7 },
-    { fromPersonId: 'person-2', toPersonId: 'person-7', relationshipType: 'conference', strength: 4 }
+    { fromId: 'person-1', toId: 'person-2', type: 'colleague', confidenceScore: 8 },
+    { fromId: 'person-2', toId: 'person-3', type: 'former_colleague', confidenceScore: 7 },
+    { fromId: 'person-3', toId: 'person-4', type: 'university', confidenceScore: 6 },
+    { fromId: 'person-1', toId: 'person-5', type: 'professional', confidenceScore: 5 },
+    { fromId: 'person-4', toId: 'person-6', type: 'colleague', confidenceScore: 9 },
+    { fromId: 'person-5', toId: 'person-7', type: 'mentor', confidenceScore: 8 },
+    { fromId: 'person-6', toId: 'person-8', type: 'professional', confidenceScore: 7 },
+    { fromId: 'person-2', toId: 'person-7', type: 'conference', confidenceScore: 4 }
   ];
   
   for (const rel of demoRelationships) {

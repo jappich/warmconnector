@@ -149,23 +149,23 @@ export class AdvancedNetworkingIntelligence {
         .where(
           and(
             or(
-              and(eq(relationshipEdges.personAId, fromPersonId), eq(relationshipEdges.personBId, toPersonId)),
-              and(eq(relationshipEdges.personAId, toPersonId), eq(relationshipEdges.personBId, fromPersonId))
+              and(eq(relationshipEdges.fromId, fromPersonId), eq(relationshipEdges.toId, toPersonId)),
+              and(eq(relationshipEdges.fromId, toPersonId), eq(relationshipEdges.toId, fromPersonId))
             )
           )
         );
 
       // Get mutual connections (2-hop paths)
       const mutualConnections = await db.execute(`
-        SELECT DISTINCT r2."personBId" as mutual_connection
-        FROM relationships r1
-        JOIN relationships r2 ON r1."personBId" = r2."personAId"
-        WHERE r1."personAId" = $1 AND r2."personBId" = $2
+        SELECT DISTINCT r2."toId" as mutual_connection
+        FROM relationship_edges r1
+        JOIN relationship_edges r2 ON r1."toId" = r2."fromId"
+        WHERE r1."fromId" = $1 AND r2."toId" = $2
         UNION
-        SELECT DISTINCT r2."personAId" as mutual_connection
-        FROM relationships r1
-        JOIN relationships r2 ON r1."personBId" = r2."personBId"
-        WHERE r1."personAId" = $1 AND r2."personAId" = $2
+        SELECT DISTINCT r2."fromId" as mutual_connection
+        FROM relationship_edges r1
+        JOIN relationship_edges r2 ON r1."toId" = r2."toId"
+        WHERE r1."fromId" = $1 AND r2."fromId" = $2
       `);
 
       // AI analysis of optimal connection strategy
@@ -216,10 +216,10 @@ export class AdvancedNetworkingIntelligence {
       return {
         optimalPath: directConnection.length > 0 ? [{
           type: 'direct',
-          strength: directConnection[0].strength || 50,
-          relationship: directConnection[0].relationshipType
+          strength: directConnection[0].confidenceScore || 50,
+          relationship: directConnection[0].type
         }] : [],
-        alternativePaths: mutualConnections.slice(0, 5).map((conn: any) => ({
+        alternativePaths: mutualConnections.rows.slice(0, 5).map((conn: any) => ({
           type: '2-hop',
           mutualConnection: conn.mutual_connection,
           estimatedStrength: 40

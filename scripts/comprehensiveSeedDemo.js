@@ -198,10 +198,10 @@ async function generateComprehensiveDemoData() {
         
         connections.forEach(coworker => {
           coworkerRelationships.push({
-            fromPersonId: companyUsers[i].id,
-            toPersonId: coworker.id,
-            relationshipType: 'coworker',
-            strength: Math.floor(Math.random() * 40) + 60, // 60-99 strength
+            fromId: companyUsers[i].id,
+            toId: coworker.id,
+            type: 'coworker',
+            confidenceScore: Math.floor(Math.random() * 40) + 60, // 60-99 strength
             metadata: {
               demo: true,
               company: companyUsers[i].company,
@@ -231,10 +231,10 @@ async function generateComprehensiveDemoData() {
         
         connections.forEach(schoolmate => {
           schoolRelationships.push({
-            fromPersonId: schoolmates[i].id,
-            toPersonId: schoolmate.id,
-            relationshipType: 'school',
-            strength: Math.floor(Math.random() * 30) + 50, // 50-79 strength
+            fromId: schoolmates[i].id,
+            toId: schoolmate.id,
+            type: 'school',
+            confidenceScore: Math.floor(Math.random() * 30) + 50, // 50-79 strength
             metadata: {
               demo: true,
               school: schoolmates[i].school,
@@ -261,10 +261,10 @@ async function generateComprehensiveDemoData() {
             { from: family[j].id, to: family[i].id }
           ].forEach(({ from, to }) => {
             familyRelationships.push({
-              fromPersonId: from,
-              toPersonId: to,
-              relationshipType: 'family',
-              strength: Math.floor(Math.random() * 20) + 80, // 80-99 strength
+              fromId: from,
+              toId: to,
+              type: 'family',
+              confidenceScore: Math.floor(Math.random() * 20) + 80, // 80-99 strength
               metadata: {
                 demo: true,
                 familyType: relType,
@@ -295,10 +295,10 @@ async function generateComprehensiveDemoData() {
         
         connections.forEach(member => {
           greekRelationships.push({
-            fromPersonId: greekMembers[i].id,
-            toPersonId: member.id,
-            relationshipType: 'greek_life',
-            strength: Math.floor(Math.random() * 25) + 65, // 65-89 strength
+            fromId: greekMembers[i].id,
+            toId: member.id,
+            type: 'greek_life',
+            confidenceScore: Math.floor(Math.random() * 25) + 65, // 65-89 strength
             metadata: {
               demo: true,
               organization: greekMembers[i].greekLife,
@@ -355,10 +355,10 @@ async function generateComprehensiveDemoData() {
     // Connect admin to various people for testing
     const adminConnections = faker.helpers.shuffle(allUsers).slice(0, 25);
     const adminRelationships = adminConnections.map(user => ({
-      fromPersonId: adminUser.id,
-      toPersonId: user.id,
-      relationshipType: faker.helpers.arrayElement(['school', 'greek_life', 'professional']),
-      strength: Math.floor(Math.random() * 30) + 70,
+      fromId: adminUser.id,
+      toId: user.id,
+      type: faker.helpers.arrayElement(['school', 'greek_life', 'professional']),
+      confidenceScore: Math.floor(Math.random() * 30) + 70,
       metadata: {
         demo: true,
         testConnection: true

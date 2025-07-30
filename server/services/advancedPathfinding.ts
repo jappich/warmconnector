@@ -105,11 +105,11 @@ export class AdvancedPathfindingEngine {
       person: persons
     })
     .from(relationships)
-    .innerJoin(persons, eq(relationships.toPersonId, persons.id))
+    .innerJoin(persons, eq(relationships.toId, persons.id))
     .where(
       and(
-        eq(relationships.fromPersonId, fromPersonId),
-        eq(relationships.toPersonId, toPersonId)
+        eq(relationships.fromId, fromPersonId),
+        eq(relationships.toId, toPersonId)
       )
     );
 
@@ -120,12 +120,12 @@ export class AdvancedPathfindingEngine {
       nodes: [{
         person: relation.person,
         relationshipType: relation.relationship.type,
-        strength: relation.relationship.strength || 5,
+        strength: relation.relationship.confidenceScore || 5,
         depth: 1
       }],
-      totalStrength: relation.relationship.strength || 5,
+      totalStrength: relation.relationship.confidenceScore || 5,
       pathLength: 1,
-      score: (relation.relationship.strength || 5) * 20
+      score: (relation.relationship.confidenceScore || 5) * 20
     }];
   }
 
@@ -167,11 +167,11 @@ export class AdvancedPathfindingEngine {
         person: persons
       })
       .from(relationships)
-      .innerJoin(persons, eq(relationships.toPersonId, persons.id))
+      .innerJoin(persons, eq(relationships.toId, persons.id))
       .where(
         and(
-          eq(relationships.fromPersonId, current.personId),
-          eq(relationships.toPersonId, toPersonId)
+          eq(relationships.fromId, current.personId),
+          eq(relationships.toId, toPersonId)
         )
       );
 
@@ -182,12 +182,12 @@ export class AdvancedPathfindingEngine {
           {
             person: finalConnection.person,
             relationshipType: finalConnection.relationship.type,
-            strength: finalConnection.relationship.strength || 5,
+            strength: finalConnection.relationship.confidenceScore || 5,
             depth: current.path.length + 1
           }
         ];
 
-        const totalStrength = current.totalStrength + (finalConnection.relationship.strength || 5);
+        const totalStrength = current.totalStrength + (finalConnection.relationship.confidenceScore || 5);
         const avgStrength = totalStrength / completePath.length;
 
         paths.push({
@@ -282,13 +282,13 @@ export class AdvancedPathfindingEngine {
       relationship: relationships
     })
     .from(relationships)
-    .innerJoin(persons, eq(relationships.toPersonId, persons.id))
-    .where(eq(relationships.fromPersonId, personId));
+    .innerJoin(persons, eq(relationships.toId, persons.id))
+    .where(eq(relationships.fromId, personId));
 
     return connections.map(conn => ({
       person: conn.person,
       relationshipType: conn.relationship.type,
-      strength: conn.relationship.strength || 5
+      strength: conn.relationship.confidenceScore || 5
     }));
   }
 
@@ -329,10 +329,10 @@ export class AdvancedPathfindingEngine {
     
     // Get existing connection IDs to exclude
     const existingConnections = await db.select({
-      personId: relationships.toPersonId
+      personId: relationships.toId
     })
     .from(relationships)
-    .where(eq(relationships.fromPersonId, userId));
+    .where(eq(relationships.fromId, userId));
 
     const excludeIds = [userId, ...existingConnections.map(conn => conn.personId)];
 

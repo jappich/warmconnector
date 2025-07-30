@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { persons, relationships, type Person } from '../../shared/schema';
+import { persons, relationshipEdges as relationships, type Person } from '../../shared/schema';
 import { eq, and, or, ne, ilike, sql } from 'drizzle-orm';
 import OpenAI from 'openai';
 
@@ -91,8 +91,8 @@ export class PostgreSQLConnectionRepository implements ConnectionRepository {
       relationship: relationships
     })
     .from(relationships)
-    .innerJoin(persons, eq(relationships.toPersonId, persons.id))
-    .where(eq(relationships.fromPersonId, userId))
+    .innerJoin(persons, eq(relationships.toId, persons.id))
+    .where(eq(relationships.fromId, userId))
     .limit(limit);
 
     // Process direct connections
@@ -100,11 +100,11 @@ export class PostgreSQLConnectionRepository implements ConnectionRepository {
       const { person, relationship } = connection;
       candidates.push({
         person,
-        connectionScore: (relationship.strength || 5) * 10, // Convert 1-10 scale to percentage
-        matchReasons: [`Direct ${relationship.relationshipType} connection`],
-        connectionType: this.mapRelationshipType(relationship.relationshipType),
+        connectionScore: (relationship.confidenceScore || 5) * 10, // Convert 1-10 scale to percentage
+        matchReasons: [`Direct ${relationship.type} connection`],
+        connectionType: this.mapRelationshipType(relationship.type),
         degreeOfSeparation: 1,
-        explanation: `You have a direct ${relationship.relationshipType} relationship`
+        explanation: `You have a direct ${relationship.type} relationship`
       });
     }
 
@@ -134,7 +134,7 @@ export class PostgreSQLConnectionRepository implements ConnectionRepository {
             sql`${persons.id} != ${userId}`,
             sql`${persons.company} IS NOT NULL`,
             sql`${persons.id} NOT IN (
-              SELECT to_person_id FROM relationships WHERE from_person_id = ${userId}
+              SELECT "toId" FROM "relationships" WHERE "fromId" = ${userId}
             )`
           )
         )

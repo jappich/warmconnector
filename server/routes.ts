@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import { db } from './db';
-import { socialAccounts, persons, introRequests } from '@shared/schema';
+import { socialAccounts, persons, introductionRequests } from '@shared/schema';
 import { ConnectionData } from '@shared/types';
 import { eq } from 'drizzle-orm';
 
@@ -1146,7 +1146,7 @@ Keep response under 150 words.`;
     }
     
     try {
-      const result = await findConnectionsByCompany(company);
+      const result = await findConnectionsByCompany(company, (req.user as any)?.claims?.sub);
       return res.json(result);
     } catch (err) {
       console.error('Error finding connections:', err);
@@ -1171,6 +1171,12 @@ Keep response under 150 words.`;
         name,
         title,
         company
+      };
+      const connectionData: ConnectionData = {
+        targetName: name,
+        targetCompany: company,
+        targetTitle: title,
+        connectionType: 'warm_introduction'
       };
       const result = await createConnection(userId, connectionData);
       return res.status(201).json(result);
@@ -2560,20 +2566,22 @@ Keep response under 150 words.`;
         });
       }
 
-      const requesterId = path[0];
+      // In a real scenario, requesterId would come from an authenticated user session.
+      // Using a mock text-based ID for demo purposes.
+      const requesterId = 'user_demo_id_12345';
       const connectorId = path[1];
       const targetId = path[path.length - 1];
       
-      // Insert using Drizzle ORM - use fixed user ID for demo
-      const result = await db.insert(introRequests).values({
-        requesterId: 1, // Default user ID for demo
-        fromPersonId: requesterId,
-        toPersonId: connectorId,
-        targetPersonId: targetId,
-        messageTemplate: message.trim(),
-        fullPath: path,
+      // Insert using Drizzle ORM with the new 'introductionRequests' table
+      const result = await db.insert(introductionRequests).values({
+        id: `intro_${Date.now()}`, // Generate a text-based ID
+        requesterId: requesterId,
+        connectorId: connectorId,
+        targetId: targetId,
+        message: message.trim(),
+        pathData: JSON.stringify(path),
         status: 'pending'
-      }).returning({ id: introRequests.id, status: introRequests.status });
+      }).returning({ id: introductionRequests.id, status: introductionRequests.status });
 
       // Send email notification via SendGrid
       try {
@@ -2603,7 +2611,7 @@ Keep response under 150 words.`;
 
       res.json({
         success: true,
-        requestId: result.rows[0]?.id || Date.now(),
+        requestId: result[0]?.id || Date.now(),
         message: 'Introduction request sent successfully',
         status: 'pending'
       });

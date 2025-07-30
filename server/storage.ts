@@ -11,9 +11,9 @@ import {
   relationshipEdges,
   type RelationshipEdge,
   type InsertRelationshipEdge,
-  introRequests,
-  type IntroRequest,
-  type InsertIntroRequest
+  introductionRequests,
+  type IntroductionRequest,
+  type InsertIntroductionRequest
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -24,7 +24,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   
   // Company methods
-  getCompany(id: number): Promise<Company | undefined>;
+  getCompany(id: string): Promise<Company | undefined>;
   getCompanyByDomain(domain: string): Promise<Company | undefined>;
   createCompany(company: InsertCompany): Promise<Company>;
   
@@ -36,8 +36,8 @@ export interface IStorage {
   createRelationship(relationship: InsertRelationshipEdge): Promise<RelationshipEdge>;
   
   // Introduction request methods
-  createIntroRequest(request: InsertIntroRequest): Promise<IntroRequest>;
-  getIntroRequests(): Promise<IntroRequest[]>;
+  createIntroRequest(request: InsertIntroductionRequest): Promise<IntroductionRequest>;
+  getIntroRequests(): Promise<IntroductionRequest[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -63,7 +63,7 @@ export class DatabaseStorage implements IStorage {
   }
   
   // Company methods
-  async getCompany(id: number): Promise<Company | undefined> {
+  async getCompany(id: string): Promise<Company | undefined> {
     const [company] = await db.select().from(companies).where(eq(companies.id, id));
     return company;
   }
@@ -96,13 +96,13 @@ export class DatabaseStorage implements IStorage {
   }
   
   // Introduction request methods
-  async createIntroRequest(request: InsertIntroRequest): Promise<IntroRequest> {
-    const [newRequest] = await db.insert(introRequests).values(request).returning();
+  async createIntroRequest(request: InsertIntroductionRequest): Promise<IntroductionRequest> {
+    const [newRequest] = await db.insert(introductionRequests).values(request).returning();
     return newRequest;
   }
   
-  async getIntroRequests(): Promise<IntroRequest[]> {
-    return db.select().from(introRequests);
+  async getIntroRequests(): Promise<IntroductionRequest[]> {
+    return db.select().from(introductionRequests);
   }
 }
 

@@ -111,7 +111,7 @@ export class IntelligentConnectionMatcher {
             relationship: relationships
           })
           .from(persons)
-          .leftJoin(relationships, eq(persons.id, relationships.personId2))
+          .leftJoin(relationships, eq(persons.id, relationships.toId))
           .where(
             and(
               ilike(persons.name, `%${name}%`),
@@ -128,8 +128,8 @@ export class IntelligentConnectionMatcher {
               name: result.person.name,
               company: result.person.company,
               title: result.person.title,
-              relationshipType: result.relationship?.relationshipType || 'UNKNOWN',
-              strength: result.relationship?.strength || 50,
+              relationshipType: result.relationship?.type || 'UNKNOWN',
+              strength: result.relationship?.confidenceScore || 50,
               confidence: this.calculateInitialConfidence(result.person, name, company),
               strengthFactors: this.identifyStrengthFactors(result.person, result.relationship),
               introductionStrategy: this.generateIntroductionStrategy(result.person, result.relationship)
@@ -153,7 +153,7 @@ export class IntelligentConnectionMatcher {
         relationship: relationships
       })
       .from(persons)
-      .leftJoin(relationships, eq(persons.id, relationships.personId2))
+      .leftJoin(relationships, eq(persons.id, relationships.toId))
       .where(
         or(
           ilike(persons.name, namePattern),
@@ -171,8 +171,8 @@ export class IntelligentConnectionMatcher {
         name: result.person!.name,
         company: result.person!.company,
         title: result.person!.title,
-        relationshipType: result.relationship?.relationshipType || 'UNKNOWN',
-        strength: result.relationship?.strength || 30,
+        relationshipType: result.relationship?.type || 'UNKNOWN',
+        strength: result.relationship?.confidenceScore || 30,
         confidence: this.calculateFuzzyConfidence(result.person!, targetName, targetCompany),
         strengthFactors: this.identifyStrengthFactors(result.person!, result.relationship),
         introductionStrategy: this.generateIntroductionStrategy(result.person!, result.relationship)

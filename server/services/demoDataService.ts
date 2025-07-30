@@ -75,72 +75,65 @@ export class DemoDataService {
       const demoRelationships = [
         // Coworker relationships (Alice and David at JLL)
         {
-          fromPersonId: 'demo_1',
-          toPersonId: 'demo_4',
+          fromId: 'demo_1',
+          toId: 'demo_4',
           type: 'COWORKER',
-          strength: 0.7,
-          metadata: JSON.stringify({ company: 'JLL' }),
+          confidenceScore: 0.7,
+          evidence: JSON.stringify({ company: 'JLL' }),
           createdAt: new Date(),
-          updatedAt: new Date()
         },
         // Education relationships (Alice, Bob, Emily all went to Stanford)
         {
-          fromPersonId: 'demo_1',
-          toPersonId: 'demo_2',
+          fromId: 'demo_1',
+          toId: 'demo_2',
           type: 'EDUCATION',
-          strength: 0.5,
-          metadata: JSON.stringify({ school: 'Stanford University' }),
+          confidenceScore: 0.5,
+          evidence: JSON.stringify({ school: 'Stanford University' }),
           createdAt: new Date(),
-          updatedAt: new Date()
         },
         {
-          fromPersonId: 'demo_1',
-          toPersonId: 'demo_5',
+          fromId: 'demo_1',
+          toId: 'demo_5',
           type: 'EDUCATION',
-          strength: 0.4,
-          metadata: JSON.stringify({ school: 'Stanford University' }),
+          confidenceScore: 0.4,
+          evidence: JSON.stringify({ school: 'Stanford University' }),
           createdAt: new Date(),
-          updatedAt: new Date()
         },
         // Greek life relationships (Alice and Carol in same organization)
         {
-          fromPersonId: 'demo_1',
-          toPersonId: 'demo_3',
+          fromId: 'demo_1',
+          toId: 'demo_3',
           type: 'GREEK_LIFE',
-          strength: 0.8,
-          metadata: JSON.stringify({ org: 'Alpha Phi Alpha', chapter: 'Beta' }),
+          confidenceScore: 0.8,
+          evidence: JSON.stringify({ org: 'Alpha Phi Alpha', chapter: 'Beta' }),
           createdAt: new Date(),
-          updatedAt: new Date()
         },
         // Hometown relationships (Alice and Carol from San Francisco)
         {
-          fromPersonId: 'demo_1',
-          toPersonId: 'demo_3',
+          fromId: 'demo_1',
+          toId: 'demo_3',
           type: 'HOMETOWN',
-          strength: 0.3,
-          metadata: JSON.stringify({ city: 'San Francisco', state: 'CA' }),
+          confidenceScore: 0.3,
+          evidence: JSON.stringify({ city: 'San Francisco', state: 'CA' }),
           createdAt: new Date(),
-          updatedAt: new Date()
         },
         // Family relationship (example)
         {
-          fromPersonId: 'demo_2',
-          toPersonId: 'demo_5',
+          fromId: 'demo_2',
+          toId: 'demo_5',
           type: 'FAMILY',
-          strength: 0.9,
-          metadata: JSON.stringify({ relation: 'sibling' }),
+          confidenceScore: 0.9,
+          evidence: JSON.stringify({ relation: 'sibling' }),
           createdAt: new Date(),
-          updatedAt: new Date()
         },
         // Social relationship
         {
-          fromPersonId: 'demo_3',
-          toPersonId: 'demo_4',
+          fromId: 'demo_3',
+          toId: 'demo_4',
           type: 'SOCIAL',
-          strength: 0.4,
-          metadata: JSON.stringify({ platform: 'LinkedIn' }),
+          confidenceScore: 0.4,
+          evidence: JSON.stringify({ platform: 'LinkedIn' }),
           createdAt: new Date(),
-          updatedAt: new Date()
         }
       ];
 

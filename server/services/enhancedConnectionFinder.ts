@@ -63,14 +63,14 @@ export class EnhancedConnectionFinder {
     // Get the relationship between two people
     const relationship = await db
       .select({
-        type: relationships.relationshipType,
-        strength: relationships.strength
+        type: relationships.type,
+        strength: relationships.confidenceScore
       })
       .from(relationships)
       .where(
         and(
-          eq(relationships.fromPersonId, fromPersonId),
-          eq(relationships.toPersonId, toPersonId)
+          eq(relationships.fromId, fromPersonId),
+          eq(relationships.toId, toPersonId)
         )
       )
       .limit(1);
@@ -171,16 +171,16 @@ export class EnhancedConnectionFinder {
           title: sql`to_person.title`.as('to_title')
         },
         relationship: {
-          type: relationships.relationshipType,
-          strength: relationships.strength
+          type: relationships.type,
+          strength: relationships.confidenceScore
         }
       })
       .from(relationships)
-      .innerJoin(sql`${persons.tableName} as to_person`, sql`${relationships.toPersonId} = to_person.id`)
+      .innerJoin(sql`${persons.tableName} as to_person`, sql`${relationships.toId} = to_person.id`)
       .where(
         and(
-          eq(relationships.fromPersonId, currentPersonId),
-          sql`${relationships.strength} >= ${this.minStrength}`
+          eq(relationships.fromId, currentPersonId),
+          sql`${relationships.confidenceScore} >= ${this.minStrength}`
         )
       );
     
@@ -279,10 +279,10 @@ export class EnhancedConnectionFinder {
       })
       .from(persons)
       .innerJoin(sql`${relationships.tableName} as user_rel`, 
-        sql`user_rel.to_person_id = ${persons.id} AND user_rel.from_person_id = ${userPersonId}`)
+        sql`user_rel.to_id = ${persons.id} AND user_rel.from_id = ${userPersonId}`)
       .innerJoin(sql`${relationships.tableName} as target_rel`, 
-        sql`target_rel.from_person_id = ${persons.id} AND target_rel.to_person_id = ${targetPersonId}`)
-      .where(sql`user_rel.strength >= ${this.minStrength} AND target_rel.strength >= ${this.minStrength}`)
+        sql`target_rel.from_id = ${persons.id} AND target_rel.to_id = ${targetPersonId}`)
+      .where(sql`user_rel.confidenceScore >= ${this.minStrength} AND target_rel.confidenceScore >= ${this.minStrength}`)
       .limit(10);
     
     return mutualConnections.map(conn => ({

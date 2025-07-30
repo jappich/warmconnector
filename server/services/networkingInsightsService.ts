@@ -78,15 +78,15 @@ export class NetworkingInsightsService {
     // Get all connections for the user
     const userConnections = await db
       .select({
-        personId: relationships.personId2,
+        personId: relationships.toId,
         person: persons,
-        relationshipType: relationships.relationshipType,
-        strength: relationships.strength,
+        relationshipType: relationships.type,
+        strength: relationships.confidenceScore,
         createdAt: relationships.createdAt
       })
       .from(relationships)
-      .innerJoin(persons, eq(relationships.personId2, persons.id))
-      .where(eq(relationships.personId1, userId));
+      .innerJoin(persons, eq(relationships.toId, persons.id))
+      .where(eq(relationships.fromId, userId));
 
     const totalConnections = userConnections.length;
     const strongConnections = userConnections.filter(c => (c.strength || 50) > 75).length;

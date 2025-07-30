@@ -269,11 +269,11 @@ export class DocumentProcessingService {
 
       if (fromPersonId && toPersonId) {
         await db.insert(relationships).values({
-          fromPersonId,
-          toPersonId,
-          relationshipType: relationshipData.type || 'PROFESSIONAL',
-          strength: relationshipData.strength || 50,
-          metadata: JSON.stringify({
+          fromId: fromPersonId,
+          toId: toPersonId,
+          type: relationshipData.type || 'PROFESSIONAL',
+          confidenceScore: relationshipData.strength || 50,
+          evidence: JSON.stringify({
             source: metadata.source,
             context: relationshipData.context,
             extractedFrom: metadata.type

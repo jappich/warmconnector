@@ -1,7 +1,7 @@
 import Graph from 'graphology';
 import { bidirectional } from 'graphology-shortest-path';
 import { db } from './db';
-import { persons, relationships, type Person, type Relationship } from '../shared/schema';
+import { persons, relationshipEdges as relationships, type Person, type RelationshipEdge as Relationship } from '../shared/schema';
 import { eq, or, and, like } from 'drizzle-orm';
 
 export interface PathNode {
@@ -45,8 +45,7 @@ class GraphService {
           name: person.name,
           company: person.company,
           title: person.title,
-          email: person.email,
-          userId: person.userId
+          email: person.email
         });
       }
 
@@ -55,10 +54,10 @@ class GraphService {
       
       // Add edges to graph
       for (const rel of allRelationships) {
-        if (this.graph.hasNode(rel.fromPersonId) && this.graph.hasNode(rel.toPersonId)) {
-          this.graph.addEdge(rel.fromPersonId, rel.toPersonId, {
+        if (this.graph.hasNode(rel.fromId) && this.graph.hasNode(rel.toId)) {
+          this.graph.addEdge(rel.fromId, rel.toId, {
             type: rel.type,
-            strength: rel.strength || 1,
+            strength: rel.confidenceScore || 1,
             id: rel.id
           });
         }
@@ -202,8 +201,7 @@ class GraphService {
       name: person.name,
       company: person.company,
       title: person.title,
-      email: person.email,
-      userId: person.userId
+      email: person.email
     });
   }
 
@@ -211,10 +209,10 @@ class GraphService {
    * Add a new relationship to the graph
    */
   async addRelationship(relationship: Relationship): Promise<void> {
-    if (this.graph.hasNode(relationship.fromPersonId) && this.graph.hasNode(relationship.toPersonId)) {
-      this.graph.addEdge(relationship.fromPersonId, relationship.toPersonId, {
+    if (this.graph.hasNode(relationship.fromId) && this.graph.hasNode(relationship.toId)) {
+      this.graph.addEdge(relationship.fromId, relationship.toId, {
         type: relationship.type,
-        strength: relationship.strength || 1,
+        strength: relationship.confidenceScore || 1,
         id: relationship.id
       });
     }

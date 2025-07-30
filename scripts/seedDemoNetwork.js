@@ -1,5 +1,5 @@
 import { db } from '../server/db.ts';
-import { persons, relationships } from '../shared/schema.ts';
+import { persons, relationshipEdges as relationships } from '../shared/schema.ts';
 
 // Realistic demo network for warm introduction scenarios
 const demoPersons = [
@@ -111,25 +111,25 @@ const demoPersons = [
 
 const demoRelationships = [
   // User's direct connections
-  { fromPersonId: 'user-1', toPersonId: 'alex-chen', type: 'colleague', strength: 85, platform: 'linkedin' },
-  { fromPersonId: 'user-1', toPersonId: 'sarah-rodriguez', type: 'colleague', strength: 90, platform: 'linkedin' },
-  { fromPersonId: 'user-1', toPersonId: 'mike-johnson', type: 'professional', strength: 75, platform: 'linkedin' },
+  { fromId: 'user-1', toId: 'alex-chen', type: 'colleague', confidenceScore: 85 },
+  { fromId: 'user-1', toId: 'sarah-rodriguez', type: 'colleague', confidenceScore: 90 },
+  { fromId: 'user-1', toId: 'mike-johnson', type: 'professional', confidenceScore: 75 },
   
   // Alex's connections
-  { fromPersonId: 'alex-chen', toPersonId: 'david-kim', type: 'colleague', strength: 80, platform: 'linkedin' },
-  { fromPersonId: 'alex-chen', toPersonId: 'lisa-wang', type: 'professional', strength: 70, platform: 'linkedin' },
+  { fromId: 'alex-chen', toId: 'david-kim', type: 'colleague', confidenceScore: 80 },
+  { fromId: 'alex-chen', toId: 'lisa-wang', type: 'professional', confidenceScore: 70 },
   
   // Sarah's connections
-  { fromPersonId: 'sarah-rodriguez', toPersonId: 'james-wilson', type: 'colleague', strength: 85, platform: 'linkedin' },
-  { fromPersonId: 'sarah-rodriguez', toPersonId: 'emily-davis', type: 'professional', strength: 75, platform: 'linkedin' },
+  { fromId: 'sarah-rodriguez', toId: 'james-wilson', type: 'colleague', confidenceScore: 85 },
+  { fromId: 'sarah-rodriguez', toId: 'emily-davis', type: 'professional', confidenceScore: 75 },
   
   // Target connections (3rd degree)
-  { fromPersonId: 'david-kim', toPersonId: 'john-doe', type: 'colleague', strength: 88, platform: 'linkedin' },
-  { fromPersonId: 'james-wilson', toPersonId: 'maria-garcia', type: 'professional', strength: 82, platform: 'linkedin' },
+  { fromId: 'david-kim', toId: 'john-doe', type: 'colleague', confidenceScore: 88 },
+  { fromId: 'james-wilson', toId: 'maria-garcia', type: 'professional', confidenceScore: 82 },
   
   // Additional cross-connections for richer network
-  { fromPersonId: 'mike-johnson', toPersonId: 'emily-davis', type: 'professional', strength: 65, platform: 'linkedin' },
-  { fromPersonId: 'lisa-wang', toPersonId: 'james-wilson', type: 'professional', strength: 60, platform: 'linkedin' }
+  { fromId: 'mike-johnson', toId: 'emily-davis', type: 'professional', confidenceScore: 65 },
+  { fromId: 'lisa-wang', toId: 'james-wilson', type: 'professional', confidenceScore: 60 }
 ];
 
 async function seedDemoNetwork() {

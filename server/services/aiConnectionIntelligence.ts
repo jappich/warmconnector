@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { db } from '../db';
-import { persons, relationships } from '../../shared/schema';
+import { persons, relationshipEdges, relationships } from '../../shared/schema';
 import { eq, and, or } from 'drizzle-orm';
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
@@ -313,17 +313,17 @@ export class AIConnectionIntelligence {
       
       // Find connections
       const connections = await db.select()
-        .from(relationships)
+        .from(relationshipEdges)
         .where(
           or(
-            eq(relationships.fromPersonId, current.personId),
-            eq(relationships.toPersonId, current.personId)
+            eq(relationshipEdges.fromId, current.personId),
+            eq(relationshipEdges.toId, current.personId)
           )
         );
       
       for (const conn of connections) {
-        const nextPersonId = conn.fromPersonId === current.personId ? conn.toPersonId : conn.fromPersonId;
-        if (!visited.has(nextPersonId)) {
+        const nextPersonId = conn.fromId === current.personId ? conn.toId : conn.fromId;
+        if (nextPersonId && !visited.has(nextPersonId)) {
           queue.push({
             personId: nextPersonId,
             path: [...current.path, nextPersonId]

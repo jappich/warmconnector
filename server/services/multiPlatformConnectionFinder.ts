@@ -392,41 +392,41 @@ export class MultiPlatformConnectionFinder {
   }> {
     // Check for direct connection in database
     const directRel = await db.select().from(relationships)
-      .where(eq(relationships.fromPersonId, fromPerson))
-      .where(eq(relationships.toPersonId, toPerson))
+      .where(eq(relationships.fromId, fromPerson))
+      .where(eq(relationships.toId, toPerson))
       .limit(1);
 
     if (directRel.length > 0) {
       return {
         directConnection: true,
         path: [fromPerson, toPerson],
-        strength: directRel[0].strength || 50,
+        strength: directRel[0].confidenceScore || 50,
         recommendations: ['Direct connection - reach out directly']
       };
     }
 
     // Find mutual connections (2nd degree)
     const fromConnections = await db.select().from(relationships)
-      .where(eq(relationships.fromPersonId, fromPerson));
+      .where(eq(relationships.fromId, fromPerson));
     
     const toConnections = await db.select().from(relationships)
-      .where(eq(relationships.toPersonId, toPerson));
+      .where(eq(relationships.toId, toPerson));
 
     const mutualConnections = fromConnections.filter(from =>
-      toConnections.some(to => from.toPersonId === to.fromPersonId)
+      toConnections.some(to => from.toId === to.fromId)
     );
 
     if (mutualConnections.length > 0) {
       const strongestMutual = mutualConnections.reduce((prev, current) =>
-        (prev.strength || 0) > (current.strength || 0) ? prev : current
+        (prev.confidenceScore || 0) > (current.confidenceScore || 0) ? prev : current
       );
 
       return {
         directConnection: false,
-        path: [fromPerson, strongestMutual.toPersonId, toPerson],
-        strength: Math.round(((strongestMutual.strength || 50) + 50) / 2),
+        path: [fromPerson, strongestMutual.toId, toPerson],
+        strength: Math.round(((strongestMutual.confidenceScore || 50) + 50) / 2),
         recommendations: [
-          `Ask ${strongestMutual.toPersonId} for an introduction`,
+          `Ask ${strongestMutual.toId} for an introduction`,
           'Mention shared connections when reaching out'
         ]
       };

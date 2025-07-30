@@ -64,7 +64,7 @@ export class CompanyEnrichmentService {
   }
 
   // Main enrichment process
-  async enrichCompany(companyId: number, domain: string): Promise<{
+  async enrichCompany(companyId: string, domain: string): Promise<{
     ghostProfilesCreated: number;
     relationshipsCreated: number;
   }> {
@@ -175,7 +175,7 @@ export class CompanyEnrichmentService {
 
   // Create ghost profiles from enrichment data
   private async createGhostProfiles(
-    companyId: number, 
+    companyId: string,
     domain: string, 
     profiles: EnrichmentResult['profiles']
   ): Promise<number> {
@@ -330,7 +330,7 @@ export class CompanyEnrichmentService {
   }
 
   // Get enrichment stats for a company
-  async getEnrichmentStats(companyId: number): Promise<{
+  async getEnrichmentStats(companyId: string): Promise<{
     realProfiles: number;
     ghostProfiles: number;
     totalRelationships: number;

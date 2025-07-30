@@ -5,20 +5,24 @@ import { z } from 'zod';
 
 // Companies table with enrichment tracking
 export const companies = pgTable('companies', {
-  id: serial('id').primaryKey(),
+  id: text('id').primaryKey(),
   name: text('name').notNull().unique(),
-  city: text('city').notNull(),
-  state: text('state').notNull(),
-  country: text('country').notNull(),
+  city: text('city'),
+  state: text('state'),
+  country: text('country'),
+  location: text('location'),
   domain: text('domain'),
   industry: text('industry'),
   size: text('size'),
   description: text('description'),
+  logo: text('logo'),
+  founded: text('founded'),
   allowAll: boolean('allow_all').notNull().default(false),
   status: text('status').notNull().default('active'),
   lastEnrichedAt: timestamp('last_enriched_at'),
   enrichmentStatus: text('enrichment_status').default('pending'), // pending, done, error
-  createdAt: timestamp('created_at').defaultNow()
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
 // Session storage table for Replit Auth
@@ -39,7 +43,7 @@ export const users = pgTable('users', {
   firstName: text('first_name'),
   lastName: text('last_name'),
   profileImageUrl: text('profile_image_url'),
-  companyId: integer('company_id').references(() => companies.id),
+  companyId: text('company_id').references(() => companies.id),
   title: text('title'),
   socialProfiles: jsonb('social_profiles'),
   education: jsonb('education'),
@@ -136,20 +140,6 @@ export const relationshipEdges = pgTable('relationship_edges', {
   idxType: index('idx_relationship_type').on(table.type),
   idxConfidence: index('idx_confidence_score').on(table.confidenceScore)
 }));
-
-// Introduction requests table
-export const introRequests = pgTable('intro_requests', {
-  id: serial('id').primaryKey(),
-  requesterId: integer('requester_id').notNull(),
-  fromPersonId: text('from_person_id').notNull(),
-  toPersonId: text('to_person_id').notNull(),
-  targetPersonId: text('target_person_id').notNull(),
-  messageTemplate: text('message_template').notNull(),
-  fullPath: jsonb('full_path'),
-  status: text('status').default('pending'), // pending, sent, accepted, declined
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow()
-});
 
 // Introduction requests table for production system
 export const introductionRequests = pgTable('introduction_requests', {
@@ -282,7 +272,7 @@ export const externalProfilesRelations = relations(externalProfiles, ({ one }) =
 }));
 
 export const usersRelations = relations(users, ({ many, one }) => ({
-  introRequests: many(introRequests),
+  introductionRequests: many(introductionRequests),
   socialAccounts: many(socialAccounts),
   externalProfiles: many(externalProfiles),
   company: one(companies, {
@@ -293,13 +283,26 @@ export const usersRelations = relations(users, ({ many, one }) => ({
 
 export const personsRelations = relations(persons, ({ many }) => ({
   fromRelationshipEdges: many(relationshipEdges, { relationName: 'fromPerson' }),
-  toRelationshipEdges: many(relationshipEdges, { relationName: 'toPerson' })
+  toRelationshipEdges: many(relationshipEdges, { relationName: 'toPerson' }),
+  introductionRequestsAsConnector: many(introductionRequests, { relationName: 'connector' }),
+  introductionRequestsAsTarget: many(introductionRequests, { relationName: 'target' })
 }));
 
-export const introRequestsRelations = relations(introRequests, ({ one }) => ({
+export const introductionRequestsRelations = relations(introductionRequests, ({ one }) => ({
   requester: one(users, {
-    fields: [introRequests.requesterId],
-    references: [users.id]
+    fields: [introductionRequests.requesterId],
+    references: [users.id],
+    relationName: 'requester'
+  }),
+  connector: one(persons, {
+    fields: [introductionRequests.connectorId],
+    references: [persons.id],
+    relationName: 'connector'
+  }),
+  target: one(persons, {
+    fields: [introductionRequests.targetId],
+    references: [persons.id],
+    relationName: 'target'
   })
 }));
 
@@ -375,12 +378,24 @@ export const enrichmentDataRelations = relations(enrichmentData, ({ one }) => ({
   })
 }));
 
+// Connection searches table
+export const connectionSearches = pgTable('connection_searches', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  companyId: text('company_id').notNull(),
+  companyName: text('company_name').notNull(),
+  location: text('location').notNull(),
+  status: text('status').default('pending').notNull(), // 'pending', 'completed', 'failed'
+  results: text('results'), // JSON string of search results
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+
 // Zod schemas for validation
 export const insertCompanySchema = createInsertSchema(companies).omit({
-  id: true,
   createdAt: true,
-  allowAll: true,
-  status: true
+  updatedAt: true
 });
 
 export const selectCompanySchema = createSelectSchema(companies);
@@ -405,11 +420,7 @@ export const insertRelationshipEdgeSchema = createInsertSchema(relationshipEdges
   createdAt: true
 });
 
-export const insertIntroRequestSchema = createInsertSchema(introRequests).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
+export const insertIntroductionRequestSchema = createInsertSchema(introductionRequests);
 
 export const insertSocialAccountSchema = createInsertSchema(socialAccounts).omit({
   id: true,
@@ -439,6 +450,12 @@ export const insertEnrichmentDataSchema = createInsertSchema(enrichmentData).omi
   createdAt: true
 });
 
+export const insertConnectionSearchSchema = createInsertSchema(connectionSearches).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Type exports
 export type Company = typeof companies.$inferSelect;
 export type InsertCompany = z.infer<typeof insertCompanySchema>;
@@ -454,8 +471,8 @@ export type InsertRelationshipEdge = z.infer<typeof insertRelationshipEdgeSchema
 export const relationships = relationshipEdges;
 export type Relationship = RelationshipEdge;
 export type InsertRelationship = InsertRelationshipEdge;
-export type IntroRequest = typeof introRequests.$inferSelect;
-export type InsertIntroRequest = z.infer<typeof insertIntroRequestSchema>;
+export type IntroductionRequest = typeof introductionRequests.$inferSelect;
+export type InsertIntroductionRequest = z.infer<typeof insertIntroductionRequestSchema>;
 export type SocialAccount = typeof socialAccounts.$inferSelect;
 export type InsertSocialAccount = z.infer<typeof insertSocialAccountSchema>;
 export type CachedLookup = typeof cachedLookups.$inferSelect;
@@ -466,3 +483,5 @@ export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type EnrichmentData = typeof enrichmentData.$inferSelect;
 export type InsertEnrichmentData = z.infer<typeof insertEnrichmentDataSchema>;
+export type ConnectionSearch = typeof connectionSearches.$inferSelect;
+export type InsertConnectionSearch = z.infer<typeof insertConnectionSearchSchema>;

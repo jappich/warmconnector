@@ -235,8 +235,8 @@ export class EnhancedConnectionService {
     // Simplified mutual connection count
     const personRelationships = await db.query.relationships.findMany({
       where: or(
-        eq(relationships.fromPersonId, personId),
-        eq(relationships.toPersonId, personId)
+        eq(relationships.fromId, personId),
+        eq(relationships.toId, personId)
       ),
       limit: 10
     });
@@ -263,14 +263,14 @@ export class EnhancedConnectionService {
     // Find relationships connected to target
     const targetRelationships = await db.query.relationships.findMany({
       where: or(
-        eq(relationships.fromPersonId, targetPerson.id),
-        eq(relationships.toPersonId, targetPerson.id)
+        eq(relationships.fromId, targetPerson.id),
+        eq(relationships.toId, targetPerson.id)
       ),
       limit: 5
     });
 
     for (const rel of targetRelationships) {
-      const intermediatePersonId = rel.fromPersonId === targetPerson.id ? rel.toPersonId : rel.fromPersonId;
+      const intermediatePersonId = rel.fromId === targetPerson.id ? rel.toId : rel.fromId;
       
       const intermediatePerson = await db.query.persons.findFirst({
         where: eq(persons.id, intermediatePersonId)
@@ -298,7 +298,7 @@ export class EnhancedConnectionService {
               name: intermediatePerson.name,
               company: intermediatePerson.company || '',
               title: intermediatePerson.title || '',
-              relationshipType: rel.relationshipType
+              relationshipType: rel.type
             },
             {
               id: targetPerson.id,
@@ -308,7 +308,7 @@ export class EnhancedConnectionService {
             }
           ],
           hops: 2,
-          pathScore: (rel.strength || 50) + Math.floor(Math.random() * 30),
+          pathScore: (rel.confidenceScore || 50) + Math.floor(Math.random() * 30),
           introductionStrategy: 'Warm introduction through mutual connection',
           messageTemplate
         });

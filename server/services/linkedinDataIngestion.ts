@@ -159,18 +159,17 @@ export class LinkedInDataIngestion {
 
           // Create relationship
           const existingRelationship = await db.select().from(relationships)
-            .where(eq(relationships.fromPersonId, `linkedin_${profile.id}`))
-            .where(eq(relationships.toPersonId, `linkedin_${connection.id}`))
+            .where(eq(relationships.fromId, `linkedin_${profile.id}`))
+            .where(eq(relationships.toId, `linkedin_${connection.id}`))
             .limit(1);
 
           if (existingRelationship.length === 0) {
             await db.insert(relationships).values({
-              fromPersonId: `linkedin_${profile.id}`,
-              toPersonId: `linkedin_${connection.id}`,
-              relationshipType: 'linkedin_connection',
-              strength: 75,
+              fromId: `linkedin_${profile.id}`,
+              toId: `linkedin_${connection.id}`,
+              type: 'linkedin_connection',
+              confidenceScore: 75,
               createdAt: new Date(),
-              updatedAt: new Date()
             });
             result.relationshipsCreated++;
           }

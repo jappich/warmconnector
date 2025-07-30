@@ -127,19 +127,19 @@ export class ContactProcessor {
       .from(relationships)
       .where(
         and(
-          eq(relationships.fromPersonId, userPersonId),
-          eq(relationships.toPersonId, contactPersonId)
+          eq(relationships.fromId, userPersonId),
+          eq(relationships.toId, contactPersonId)
         )
       )
       .limit(1);
 
     if (existingRelationship.length === 0) {
       await db.insert(relationships).values({
-        fromPersonId: userPersonId,
-        toPersonId: contactPersonId,
-        relationshipType: 'contact',
-        strength: 80, // Strong connection since it's a direct contact (0-100 scale)
-        metadata: { source: 'contact_upload' },
+        fromId: userPersonId,
+        toId: contactPersonId,
+        type: 'contact',
+        confidenceScore: 80, // Strong connection since it's a direct contact (0-100 scale)
+        evidence: 'contact_upload',
         createdAt: new Date()
       });
     }

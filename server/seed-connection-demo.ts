@@ -1,5 +1,5 @@
 import { db } from './db';
-import { persons, relationships, users, socialAccounts } from '../shared/schema';
+import { persons, relationshipEdges as relationships, users, socialAccounts } from '../shared/schema';
 
 /**
  * Seed comprehensive demo data for connection finder engine
@@ -176,152 +176,152 @@ export async function seedConnectionFinderDemo() {
     await db.insert(relationships).values([
       // Company connections (same company)
       {
-        fromPersonId: 'user-1',
-        toPersonId: 'person-1',
+        fromId: 'user-1',
+        toId: 'person-1',
         type: 'coworker',
-        strength: 8
+        confidenceScore: 8
       },
       {
-        fromPersonId: 'user-1',
-        toPersonId: 'person-2',
+        fromId: 'user-1',
+        toId: 'person-2',
         type: 'coworker',
-        strength: 7
+        confidenceScore: 7
       },
       {
-        fromPersonId: 'person-1',
-        toPersonId: 'person-2',
+        fromId: 'person-1',
+        toId: 'person-2',
         type: 'coworker',
-        strength: 6
+        confidenceScore: 6
       },
 
       // College/Education connections
       {
-        fromPersonId: 'user-1',
-        toPersonId: 'person-3',
+        fromId: 'user-1',
+        toId: 'person-3',
         type: 'college',
-        strength: 7
+        confidenceScore: 7
       },
       {
-        fromPersonId: 'person-3',
-        toPersonId: 'person-4',
+        fromId: 'person-3',
+        toId: 'person-4',
         type: 'coworker',
-        strength: 9
+        confidenceScore: 9
       },
       {
-        fromPersonId: 'user-1',
-        toPersonId: 'person-13',
+        fromId: 'user-1',
+        toId: 'person-13',
         type: 'professor',
-        strength: 5
+        confidenceScore: 5
       },
       {
-        fromPersonId: 'person-13',
-        toPersonId: 'person-14',
+        fromId: 'person-13',
+        toId: 'person-14',
         type: 'colleague',
-        strength: 6
+        confidenceScore: 6
       },
 
       // Industry connections (tech to finance)
       {
-        fromPersonId: 'person-2',
-        toPersonId: 'person-5',
+        fromId: 'person-2',
+        toId: 'person-5',
         type: 'friend',
-        strength: 6
+        confidenceScore: 6
       },
       {
-        fromPersonId: 'person-5',
-        toPersonId: 'person-6',
+        fromId: 'person-5',
+        toId: 'person-6',
         type: 'coworker',
-        strength: 8
+        confidenceScore: 8
       },
       {
-        fromPersonId: 'person-6',
-        toPersonId: 'person-7',
+        fromId: 'person-6',
+        toId: 'person-7',
         type: 'industry',
-        strength: 5
+        confidenceScore: 5
       },
 
       // Consulting network
       {
-        fromPersonId: 'person-5',
-        toPersonId: 'person-8',
+        fromId: 'person-5',
+        toId: 'person-8',
         type: 'client',
-        strength: 7
+        confidenceScore: 7
       },
       {
-        fromPersonId: 'person-8',
-        toPersonId: 'person-9',
+        fromId: 'person-8',
+        toId: 'person-9',
         type: 'coworker',
-        strength: 8
+        confidenceScore: 8
       },
       {
-        fromPersonId: 'person-9',
-        toPersonId: 'person-10',
+        fromId: 'person-9',
+        toId: 'person-10',
         type: 'industry',
-        strength: 6
+        confidenceScore: 6
       },
 
       // Healthcare connections
       {
-        fromPersonId: 'person-8',
-        toPersonId: 'person-11',
+        fromId: 'person-8',
+        toId: 'person-11',
         type: 'client',
-        strength: 6
+        confidenceScore: 6
       },
       {
-        fromPersonId: 'person-11',
-        toPersonId: 'person-12',
+        fromId: 'person-11',
+        toId: 'person-12',
         type: 'industry',
-        strength: 7
+        confidenceScore: 7
       },
 
       // Academic to industry bridge
       {
-        fromPersonId: 'person-14',
-        toPersonId: 'person-3',
+        fromId: 'person-14',
+        toId: 'person-3',
         type: 'advisor',
-        strength: 7
+        confidenceScore: 7
       },
       {
-        fromPersonId: 'person-13',
-        toPersonId: 'person-15',
+        fromId: 'person-13',
+        toId: 'person-15',
         type: 'alumni',
-        strength: 5
+        confidenceScore: 5
       },
 
       // Media/Entertainment connections
       {
-        fromPersonId: 'person-15',
-        toPersonId: 'person-16',
+        fromId: 'person-15',
+        toId: 'person-16',
         type: 'industry',
-        strength: 6
+        confidenceScore: 6
       },
 
       // Cross-industry family/personal connections
       {
-        fromPersonId: 'person-4',
-        toPersonId: 'person-12',
+        fromId: 'person-4',
+        toId: 'person-12',
         type: 'family',
-        strength: 10
+        confidenceScore: 10
       },
       {
-        fromPersonId: 'person-7',
-        toPersonId: 'person-16',
+        fromId: 'person-7',
+        toId: 'person-16',
         type: 'spouse',
-        strength: 10
+        confidenceScore: 10
       },
 
       // Alumni networks
       {
-        fromPersonId: 'person-5',
-        toPersonId: 'person-8',
+        fromId: 'person-5',
+        toId: 'person-8',
         type: 'college',
-        strength: 6
+        confidenceScore: 6
       },
       {
-        fromPersonId: 'person-3',
-        toPersonId: 'person-11',
+        fromId: 'person-3',
+        toId: 'person-11',
         type: 'college',
-        strength: 5
+        confidenceScore: 5
       }
     ]);
 

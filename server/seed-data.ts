@@ -1,5 +1,5 @@
 import { db } from './db';
-import { persons, relationships } from '../shared/schema';
+import { persons, relationshipEdges as relationships } from '../shared/schema';
 
 /**
  * Seed the database with sample persons and relationships for demo purposes
@@ -31,13 +31,13 @@ export async function seedSampleData() {
 
     // Sample relationships
     const sampleRelationships = [
-      { fromPersonId: 'user-1', toPersonId: 'john-smith', type: 'coworker', strength: 8 },
-      { fromPersonId: 'john-smith', toPersonId: 'sarah-jones', type: 'college', strength: 6 },
-      { fromPersonId: 'sarah-jones', toPersonId: 'lisa-brown', type: 'coworker', strength: 9 },
-      { fromPersonId: 'lisa-brown', toPersonId: 'tim-cook', type: 'coworker', strength: 10 },
-      { fromPersonId: 'user-1', toPersonId: 'mike-wilson', type: 'friend', strength: 7 },
-      { fromPersonId: 'mike-wilson', toPersonId: 'jane-doe', type: 'college', strength: 5 },
-      { fromPersonId: 'john-smith', toPersonId: 'bob-miller', type: 'friend', strength: 6 }
+      { fromId: 'user-1', toId: 'john-smith', type: 'coworker', confidenceScore: 8 },
+      { fromId: 'john-smith', toId: 'sarah-jones', type: 'college', confidenceScore: 6 },
+      { fromId: 'sarah-jones', toId: 'lisa-brown', type: 'coworker', confidenceScore: 9 },
+      { fromId: 'lisa-brown', toId: 'tim-cook', type: 'coworker', confidenceScore: 10 },
+      { fromId: 'user-1', toId: 'mike-wilson', type: 'friend', confidenceScore: 7 },
+      { fromId: 'mike-wilson', toId: 'jane-doe', type: 'college', confidenceScore: 5 },
+      { fromId: 'john-smith', toId: 'bob-miller', type: 'friend', confidenceScore: 6 }
     ];
 
     // Insert relationships

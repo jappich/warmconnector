@@ -104,11 +104,11 @@ class ContextualNetworkingService {
       .select({
         person: persons,
         relationshipType: relationships.type,
-        strength: relationships.strength
+        strength: relationships.confidenceScore
       })
       .from(relationships)
-      .innerJoin(persons, eq(relationships.toPersonId, persons.id))
-      .where(eq(relationships.fromPersonId, userId));
+      .innerJoin(persons, eq(relationships.toId, persons.id))
+      .where(eq(relationships.fromId, userId));
 
     return {
       ...user,
@@ -129,10 +129,10 @@ class ContextualNetworkingService {
       .select({
         type: relationships.type,
         count: sql<number>`count(*)`.as('count'),
-        avgStrength: sql<number>`avg(${relationships.strength})`.as('avgStrength')
+        avgStrength: sql<number>`avg(${relationships.confidenceScore})`.as('avgStrength')
       })
       .from(relationships)
-      .where(eq(relationships.fromPersonId, userId))
+      .where(eq(relationships.fromId, userId))
       .groupBy(relationships.type);
 
     // Get industry/company diversity
@@ -142,8 +142,8 @@ class ContextualNetworkingService {
         count: sql<number>`count(*)`.as('count')
       })
       .from(relationships)
-      .innerJoin(persons, eq(relationships.toPersonId, persons.id))
-      .where(eq(relationships.fromPersonId, userId))
+      .innerJoin(persons, eq(relationships.toId, persons.id))
+      .where(eq(relationships.fromId, userId))
       .groupBy(persons.company);
 
     // Calculate network metrics
@@ -173,26 +173,26 @@ class ContextualNetworkingService {
           company: sql<string>`connector.company`
         },
         relationshipType: relationships.type,
-        strength: relationships.strength
+        strength: relationships.confidenceScore
       })
       .from(relationships)
       .innerJoin(
         sql`${persons} as connector`, 
-        eq(relationships.toPersonId, sql`connector.id`)
+        eq(relationships.toId, sql`connector.id`)
       )
       .innerJoin(
         sql`${relationships} as second_rel`,
-        eq(sql`connector.id`, sql`second_rel.from_person_id`)
+        eq(sql`connector.id`, sql`second_rel.from_id`)
       )
-      .innerJoin(persons, eq(sql`second_rel.to_person_id`, persons.id))
+      .innerJoin(persons, eq(sql`second_rel.to_id`, persons.id))
       .where(
         and(
-          eq(relationships.fromPersonId, userId),
+          eq(relationships.fromId, userId),
           sql`${persons.id} != ${userId}`,
           // Exclude direct connections
           sql`${persons.id} NOT IN (
-            SELECT to_person_id FROM ${relationships} 
-            WHERE from_person_id = ${userId}
+            SELECT to_id FROM ${relationships}
+            WHERE from_id = ${userId}
           )`
         )
       )
@@ -208,8 +208,8 @@ class ContextualNetworkingService {
           sql`${persons.id} != ${userId}`,
           // Exclude existing connections
           sql`${persons.id} NOT IN (
-            SELECT to_person_id FROM ${relationships} 
-            WHERE from_person_id = ${userId}
+            SELECT to_id FROM ${relationships}
+            WHERE from_id = ${userId}
           )`
         )
       )

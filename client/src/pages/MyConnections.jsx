@@ -28,11 +28,11 @@ export default function MyConnections() {
 
   // Fetch introduction requests
   const {
-    data: introRequests,
+    data: introductionRequests,
     isLoading: requestsLoading,
     error: requestsError
   } = useQuery({
-    queryKey: ['intro-requests'],
+    queryKey: ['introduction-requests-history'],
     queryFn: async () => {
       const token = localStorage.getItem('authToken');
       const response = await fetch('/api/introduction/history', {
@@ -98,7 +98,7 @@ export default function MyConnections() {
     }
   };
 
-  const filteredRequests = introRequests?.filter(request => {
+  const filteredRequests = introductionRequests?.filter(request => {
     const matchesSearch = !searchTerm || 
       request.targetName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.targetCompany?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -170,7 +170,7 @@ export default function MyConnections() {
       <Tabs defaultValue="intro-requests" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 h-12">
           <TabsTrigger value="intro-requests" className="text-white text-base">
-            Introduction Requests ({introRequests?.length || 0})
+            Introduction Requests ({introductionRequests?.length || 0})
           </TabsTrigger>
           <TabsTrigger value="saved-connections" className="text-white text-base">
             Saved Connections ({savedConnections?.length || 0})

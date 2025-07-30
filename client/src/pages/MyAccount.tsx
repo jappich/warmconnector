@@ -6,28 +6,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, Clock, CheckCircle, XCircle, Send } from 'lucide-react';
 import { format } from 'date-fns';
 
-interface IntroRequest {
-  id: number;
-  fromPersonId: string;
-  toPersonId: string;
-  targetPersonId: string;
-  status: 'pending' | 'accepted' | 'rejected';
-  messageTemplate: string;
-  fullPath: string[];
-  createdAt: string;
-  updatedAt: string;
+interface IntroductionRequest {
+  id: string;
+  requesterId: string;
+  connectorId: string;
+  targetId: string;
+  message: string;
+  status: 'pending' | 'accepted' | 'declined';
+  pathData: string; // JSON string
+  timestamp: string;
 }
 
 export default function MyAccount() {
   // Fetch introduction requests history
   const {
-    data: introRequests,
+    data: introductionRequests,
     isLoading,
     error
   } = useQuery({
-    queryKey: ['intro-requests'],
-    queryFn: async (): Promise<IntroRequest[]> => {
-      const response = await fetch('/api/intro-requests');
+    queryKey: ['introduction-requests-history'],
+    queryFn: async (): Promise<IntroductionRequest[]> => {
+      const response = await fetch('/api/introduction/history');
       
       if (!response.ok) {
         throw new Error('Failed to fetch introduction requests');
@@ -109,7 +108,7 @@ export default function MyAccount() {
                 <div className="text-center py-8">
                   <p className="text-red-400">Failed to load introduction requests</p>
                 </div>
-              ) : !introRequests || introRequests.length === 0 ? (
+              ) : !introductionRequests || introductionRequests.length === 0 ? (
                 <div className="text-center py-8">
                   <Send className="mx-auto h-12 w-12 text-gray-500 mb-4" />
                   <p className="text-gray-400 text-lg mb-2">No introduction requests yet</p>
@@ -119,7 +118,7 @@ export default function MyAccount() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {introRequests.map((request) => (
+                  {introductionRequests.map((request) => (
                     <Card key={request.id} className="bg-gray-900/50 border-gray-600">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-3">
@@ -130,27 +129,27 @@ export default function MyAccount() {
                             </Badge>
                           </div>
                           <span className="text-sm text-gray-400">
-                            {format(new Date(request.createdAt), 'MMM d, yyyy')}
+                            {format(new Date(request.timestamp), 'MMM d, yyyy')}
                           </span>
                         </div>
                         
                         <div className="space-y-2">
                           <p className="text-white font-medium">
-                            Request to: {request.targetPersonId}
+                            Request to: {request.targetId}
                           </p>
                           <p className="text-gray-400 text-sm">
-                            Path length: {request.fullPath.length} people
+                            Path length: {JSON.parse(request.pathData || '[]').length} people
                           </p>
                           <p className="text-gray-400 text-sm">
-                            Via: {request.toPersonId}
+                            Via: {request.connectorId}
                           </p>
                         </div>
                         
                         <div className="mt-3 pt-3 border-t border-gray-700">
                           <p className="text-gray-300 text-sm">
-                            {request.messageTemplate.length > 100
-                              ? `${request.messageTemplate.substring(0, 100)}...`
-                              : request.messageTemplate
+                            {request.message.length > 100
+                              ? `${request.message.substring(0, 100)}...`
+                              : request.message
                             }
                           </p>
                         </div>
